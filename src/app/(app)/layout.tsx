@@ -32,7 +32,6 @@ export default async function AppLayout({
                 <NavLink href="/catalogue">Catalogue</NavLink>
                 <NavLink href="/emprunter">Emprunter</NavLink>
                 <NavLink href="/rendre">Rendre</NavLink>
-                <NavLink href="/historique">Historique</NavLink>
                 <NavLink href="/profil">Mon Espace</NavLink>
                 <NavLink href="/ajouter">Ajouter</NavLink>
                 {isAdmin && <NavLink href="/gerer">Gérer</NavLink>}
