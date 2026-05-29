@@ -1,6 +1,7 @@
 interface ISBNLookupResult {
   titre: string;
   auteur: string;
+  categorie: string | null;
   resume: string | null;
   couverture: string | null;
 }
@@ -24,6 +25,7 @@ export async function lookupISBN(isbn: string): Promise<ISBNLookupResult | null>
     return {
       titre: info.title ?? "",
       auteur: (info.authors ?? []).join(", "),
+      categorie: (info.categories ?? []).join(", ") || null,
       resume: info.description ?? null,
       couverture: info.imageLinks?.thumbnail?.replace("http://", "https://") ?? null,
     };
