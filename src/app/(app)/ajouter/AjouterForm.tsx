@@ -17,6 +17,7 @@ export default function AjouterForm({
   const [fields, setFields] = useState({
     titre: "",
     auteur: "",
+    categorie: "",
     resume: "",
     couverture: "",
   });
@@ -28,6 +29,7 @@ export default function AjouterForm({
         setFields({
           titre: result.titre,
           auteur: result.auteur,
+          categorie: result.categorie ?? "",
           resume: result.resume ?? "",
           couverture: result.couverture ?? "",
         });
@@ -65,15 +67,13 @@ export default function AjouterForm({
       <Field label="Titre *" name="titre" value={fields.titre} onChange={(v) => setFields((f) => ({ ...f, titre: v }))} required />
       <Field label="Auteur *" name="auteur" value={fields.auteur} onChange={(v) => setFields((f) => ({ ...f, auteur: v }))} required />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Catégorie</label>
-        <input
-          name="categorie"
-          type="text"
-          placeholder="Ex: Business, Développement personnel…"
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-        />
-      </div>
+      <Field
+        label="Catégorie"
+        name="categorie"
+        value={fields.categorie}
+        onChange={(v) => setFields((f) => ({ ...f, categorie: v }))}
+        placeholder="Ex: Business, Développement personnel…"
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <Field
