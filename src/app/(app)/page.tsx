@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { getAllLivres, getAllLivresAvecArchives } from "@/services/livre.service";
 import { getOverdueLoans, determineLoanStatus } from "@/services/emprunt.service";
-import { getUserRole } from "@/lib/auth";
+import { getUserRole, getCurrentUser } from "@/lib/auth";
 import type { LoanStatus } from "@/types";
+import LandingPage from "./LandingPage";
 
 const STATUS_EMOJI: Record<LoanStatus, string> = {
   green: "🟢",
@@ -25,6 +26,12 @@ function daysOverdue(dateRetourPrevue: string): number {
 }
 
 export default async function DashboardPage() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return <LandingPage />;
+  }
+
   const [tous, disponibles, empruntes, retardataires, role] = await Promise.all([
     getAllLivresAvecArchives(),
     getAllLivres("Disponible"),
