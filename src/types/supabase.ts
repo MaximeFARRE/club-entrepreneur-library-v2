@@ -13,6 +13,15 @@ export interface Database {
   public: {
     Tables: {
       livres: {
+        Relationships: [
+          {
+            foreignKeyName: "emprunts_id_livre_fkey";
+            columns: ["id"];
+            isOneToOne: false;
+            referencedRelation: "emprunts";
+            referencedColumns: ["id_livre"];
+          },
+        ];
         Row: {
           id: number;
           titre: string;
@@ -27,7 +36,6 @@ export interface Database {
           date_ajout: string;
         };
         Insert: {
-          id?: never;
           titre: string;
           auteur: string;
           categorie?: string | null;
@@ -40,7 +48,6 @@ export interface Database {
           date_ajout?: string;
         };
         Update: {
-          id?: never;
           titre?: string;
           auteur?: string;
           categorie?: string | null;
@@ -54,6 +61,15 @@ export interface Database {
         };
       };
       emprunts: {
+        Relationships: [
+          {
+            foreignKeyName: "emprunts_id_livre_fkey";
+            columns: ["id_livre"];
+            isOneToOne: false;
+            referencedRelation: "livres";
+            referencedColumns: ["id"];
+          },
+        ];
         Row: {
           id: number;
           id_livre: number;
@@ -65,7 +81,6 @@ export interface Database {
           commentaire: string | null;
         };
         Insert: {
-          id?: never;
           id_livre: number;
           emprunteur: string;
           emprunteur_email: string;
@@ -75,7 +90,6 @@ export interface Database {
           commentaire?: string | null;
         };
         Update: {
-          id?: never;
           id_livre?: number;
           emprunteur?: string;
           emprunteur_email?: string;
@@ -86,6 +100,7 @@ export interface Database {
         };
       };
       profiles: {
+        Relationships: [];
         Row: {
           id: string;
           role: "admin" | "member";
@@ -97,14 +112,19 @@ export interface Database {
           nom?: string | null;
         };
         Update: {
-          id?: string;
           role?: "admin" | "member";
           nom?: string | null;
         };
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
   };
 }
