@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { isbnLookupAction, addBookAction } from "./actions";
+import Link from "next/link";
 
 export default function AjouterForm() {
   const [isbn, setIsbn] = useState("");
@@ -85,9 +86,9 @@ export default function AjouterForm() {
       />
 
       <div className="flex justify-end gap-3">
-        <a href="/catalogue" className="rounded-md border border-gray-200 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
+        <Link href="/catalogue" className="rounded-md border border-gray-200 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
           Annuler
-        </a>
+        </Link>
         <button
           type="submit"
           className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
