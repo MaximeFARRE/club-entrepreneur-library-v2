@@ -41,17 +41,77 @@ Version 1 was a quick prototype built using Python and Streamlit. While it prove
 - **📊 Administration Dashboard**: Key metrics (total books, available, borrowed, overdue count) and a late-returns tracking table with a bulk-nudge trigger (logs late notifications).
 - **🔒 Role-Based Access Control**: Strict division between `member` and `admin` roles, verified on the server side in Server Actions and in the database through PostgreSQL RLS policies.
 
-## Tech Stack
+---
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | [Next.js 15](https://nextjs.org/) (App Router) |
-| Language | TypeScript 5 |
-| UI | React 19 + Tailwind CSS |
-| Database | [Supabase](https://supabase.com/) (PostgreSQL) |
-| Auth | Supabase Auth |
-| Deployment | [Vercel](https://vercel.com/) |
-| Testing | [Vitest](https://vitest.dev/) + `vite-tsconfig-paths` |
+## System Workflows
+
+### 1. Recording a Book Borrow
+The diagram below shows how a borrow transaction propagates through the presentation, service, and database repository layers:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Member
+    participant UI as Browser (Form)
+    participant Act as Server Action (borrowBookAction)
+    participant Svc as EmpruntService (processBorrow)
+    participant RepoL as LivreRepository
+    participant RepoH as HistoriqueRepository
+    participant DB as Supabase (PostgreSQL)
+
+    User->>UI: Selects book & inputs name/email
+    UI->>Act: Submits form data
+    Act->>Svc: processBorrow(livreId, borrower, email)
+    Svc->>RepoL: getLivre(livreId)
+    RepoL->>DB: Query book record
+    DB-->>RepoL: Book record (Disponible)
+    RepoL-->>Svc: Book details
+    Note over Svc: Calculates dueDate (now + 30 days)
+    Svc->>RepoL: updateAvailability(id, "Indisponible", borrower)
+    RepoL->>DB: UPDATE livres SET disponibilite = "Indisponible"
+    Svc->>RepoH: addEmprunt(loanData)
+    RepoH->>DB: INSERT INTO emprunts
+    Svc-->>Act: Success void
+    Act-->>UI: Redirects to /catalogue
+    UI-->>User: Visual feedback (Book Borrowed)
+```
+
+### 2. Member Signup & Profile Synchronization
+When a new user registers, Supabase triggers an automatic sync to create a custom profile:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as New User
+    participant UI as Browser (/signup)
+    participant Act as Server Action (signUpAction)
+    participant Auth as Supabase Auth
+    participant Trig as PG Trigger (on_auth_user_created)
+    participant DB as profiles Table
+
+    User->>UI: Inputs Name, Email, Password
+    UI->>Act: Submits signup form
+    Act->>Auth: signUp({ email, password, metadata: { nom } })
+    Note over Auth: Creates Auth User
+    Auth->>Trig: Fire AFTER INSERT
+    Note over Trig: handle_new_user() reads metadata->>nom
+    Trig->>DB: INSERT INTO profiles (id, role, nom) VALUES (auth_id, 'member', name)
+    Auth-->>Act: Registration Success
+    Act-->>UI: Redirects to Dashboard
+    UI-->>User: Logged in and profile initialized
+```
+
+---
+
+## Technical Stack
+
+| Layer | Technology | Selection Rationale |
+|-------|------------|---------------------|
+| **Core Framework** | [Next.js 15 (App Router)](https://nextjs.org/) | Hybrid Server/Client rendering, optimized layouts, and secure Server Actions. |
+| **Language** | [TypeScript 5](https://www.typescriptlang.org/) | Static typing, structural interfaces, and complete compile-time validation. |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) | Rapid, responsive utility-first layout styling. |
+| **Backend & DB** | [Supabase](https://supabase.com/) | Postgres backend, instantaneous Authentication, and robust security policies. |
+| **Unit Testing** | [Vitest](https://vitest.dev/) | Sub-millisecond testing speeds, native ES modules support, and easy path resolution. |
 
 ## Installation
 
