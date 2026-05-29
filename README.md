@@ -17,12 +17,13 @@ This is a full rewrite of the original Streamlit/Python v1, migrated to a modern
 ## Main Features
 
 - **Catalog**: View, search, and filter the entire book collection (All / Available / Borrowed)
-- **Inventory**: Add new books (manual or via ISBN auto-fill), archive lost ones, edit records
+- **Inventory**: Add new books (manual or via ISBN auto-fill, capturing category too), now open to all authenticated users
 - **Borrowing & Returns**: Record loans, automatically calculate due dates (30-day period), register returns
-- **History**: Full ledger of all past borrowing activity with color-coded urgency indicators
+- **Personal Space ("Mon Espace")**: Users can track their active borrows, shared books (viewing who currently holds them), history, stats, and update their name
+- **History**: Full ledger of all past borrowing activity with color-coded urgency indicators (🟢/🟠/🔴)
 - **Dashboard**: Key metrics at a glance (total books, available, overdue) with a late-returns list
-- **Notifications**: Automated emails to borrower and owner on borrow, return, and overdue events
-- **Authentication**: Supabase Auth — members log in, admin role for management operations
+- **Notifications**: Simulated logs on borrow, return, and overdue events (email dispatch paused)
+- **Authentication**: Supabase Auth — register (sign up) and log in, with admin roles for book management (edit, delete, archive)
 
 ## Tech Stack
 
@@ -34,7 +35,7 @@ This is a full rewrite of the original Streamlit/Python v1, migrated to a modern
 | Database | [Supabase](https://supabase.com/) (PostgreSQL) |
 | Auth | Supabase Auth |
 | Deployment | [Vercel](https://vercel.com/) |
-| Testing | Vitest + React Testing Library |
+| Testing | [Vitest](https://vitest.dev/) + `vite-tsconfig-paths` |
 
 ## Installation
 
@@ -69,28 +70,28 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```text
 .
-├── app/                        # Next.js App Router — pages and layouts
-│   ├── (auth)/                 # Auth routes (login, signup)
-│   ├── (app)/                  # Protected app routes
-│   │   ├── page.tsx            # Dashboard (accueil)
-│   │   ├── catalogue/          # Book catalog with filters
-│   │   ├── ajouter/            # Add a book (ISBN lookup + manual)
-│   │   ├── emprunter/          # Record a borrow
-│   │   ├── rendre/             # Record a return
-│   │   ├── historique/         # Full borrow history
-│   │   └── gerer/              # Admin — manage books
-│   └── api/                    # API routes (webhooks, cron)
 ├── src/
+│   ├── app/                    # Next.js App Router — pages and layouts
+│   │   ├── (auth)/             # Auth routes (login, signup)
+│   │   ├── (app)/              # Protected app routes
+│   │   │   ├── page.tsx        # Dashboard (accueil)
+│   │   │   ├── catalogue/      # Book catalog with filters
+│   │   │   ├── ajouter/        # Add a book (ISBN lookup + manual)
+│   │   │   ├── emprunter/      # Record a borrow
+│   │   │   ├── rendre/         # Record a return
+│   │   │   ├── historique/     # Full borrow history
+│   │   │   ├── profil/         # User profile and stats
+│   │   │   └── gerer/          # Admin — manage books
+│   │   └── api/                # API routes (webhooks, cron)
 │   ├── services/               # Business logic (no DB calls here)
+│   │   └── __tests__/          # Service unit tests (Vitest)
 │   ├── repositories/           # Supabase queries (no business logic here)
 │   ├── lib/
 │   │   └── supabase/           # Supabase client helpers (browser + server)
 │   └── types/                  # Shared TypeScript types
-├── components/                 # Shared UI components
-├── docs/                       # Architecture, development, roadmap
-├── supabase/
-│   └── migrations/             # SQL migration files
-└── tests/                      # Unit and integration tests
+├── docs/                       # Architecture, development, roadmap, plans
+└── supabase/
+    └── migrations/             # SQL database migration files
 ```
 
 ## Contributors
