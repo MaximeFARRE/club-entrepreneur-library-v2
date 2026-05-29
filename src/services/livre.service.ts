@@ -44,6 +44,10 @@ export async function deleteLivre(id: number): Promise<void> {
   return livreRepo.deleteLivre(id);
 }
 
+export async function getLivresByOwner(email: string): Promise<Livre[]> {
+  return livreRepo.getLivresByOwner(email);
+}
+
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }

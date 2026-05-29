@@ -23,9 +23,7 @@ CREATE POLICY "livres_select" ON livres
 
 CREATE POLICY "livres_insert" ON livres
   FOR INSERT TO authenticated
-  WITH CHECK (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+  WITH CHECK (true);
 
 CREATE POLICY "livres_update" ON livres
   FOR UPDATE TO authenticated

@@ -17,8 +17,12 @@ CREATE POLICY "profiles_update_own" ON profiles
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, role)
-  VALUES (NEW.id, 'member');
+  INSERT INTO profiles (id, role, nom)
+  VALUES (
+    NEW.id,
+    'member',
+    coalesce(NEW.raw_user_meta_data->>'nom', '')
+  );
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

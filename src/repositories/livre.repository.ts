@@ -107,3 +107,15 @@ export async function updateAvailability(
 
   if (error) throw new Error(`updateAvailability: ${error.message}`);
 }
+
+export async function getLivresByOwner(email: string): Promise<Livre[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("livres")
+    .select("*")
+    .eq("proprietaire_email", email)
+    .order("date_ajout", { ascending: false });
+
+  if (error) throw new Error(`getLivresByOwner: ${error.message}`);
+  return data as Livre[];
+}

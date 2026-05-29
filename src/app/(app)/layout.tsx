@@ -26,7 +26,8 @@ export default async function AppLayout({
               <NavLink href="/emprunter">Emprunter</NavLink>
               <NavLink href="/rendre">Rendre</NavLink>
               <NavLink href="/historique">Historique</NavLink>
-              {isAdmin && <NavLink href="/ajouter">Ajouter</NavLink>}
+              <NavLink href="/profil">Mon Espace</NavLink>
+              <NavLink href="/ajouter">Ajouter</NavLink>
               {isAdmin && <NavLink href="/gerer">Gérer</NavLink>}
             </div>
           </div>
