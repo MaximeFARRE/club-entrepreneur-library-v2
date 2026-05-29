@@ -1,5 +1,6 @@
 import { getAllLivres } from "@/services/livre.service";
 import { returnBookAction } from "./actions";
+import Link from "next/link";
 
 export default async function RendrePage({
   searchParams,
@@ -59,12 +60,12 @@ export default async function RendrePage({
           </div>
 
           <div className="flex justify-end gap-3">
-            <a
+            <Link
               href="/catalogue"
               className="rounded-md border border-gray-200 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
             >
               Annuler
-            </a>
+            </Link>
             <button
               type="submit"
               disabled={livresEmpruntes.length === 0}
