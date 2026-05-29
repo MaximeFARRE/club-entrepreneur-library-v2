@@ -1,4 +1,3 @@
-import { getCurrentUser, getUserProfile } from "@/lib/auth";
 import AjouterForm from "./AjouterForm";
 
 export default async function AjouterPage({
@@ -6,7 +5,6 @@ export default async function AjouterPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const [user, profile] = await Promise.all([getCurrentUser(), getUserProfile()]);
   const { error } = await searchParams;
 
   return (
@@ -20,10 +18,7 @@ export default async function AjouterPage({
       )}
 
       <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <AjouterForm
-          defaultOwnerName={profile?.nom || ""}
-          defaultOwnerEmail={user?.email || ""}
-        />
+        <AjouterForm />
       </div>
     </div>
   );
