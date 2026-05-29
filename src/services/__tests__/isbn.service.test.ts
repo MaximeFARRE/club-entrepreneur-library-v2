@@ -2,20 +2,20 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { lookupISBN } from "../isbn.service";
 
 describe("isbn.service - lookupISBN", () => {
-  const fetchSpy = vi.spyOn(globalThis, "fetch");
+  const fetchMock = vi.fn();
 
   beforeEach(() => {
-    fetchSpy.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("should return null immediately and not fetch if the ISBN format is invalid", async () => {
     const result = await lookupISBN("123");
     expect(result).toBeNull();
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("should fetch Google Books API and return details on success for a valid 10-digit ISBN", async () => {
@@ -34,14 +34,14 @@ describe("isbn.service - lookupISBN", () => {
       ],
     };
 
-    fetchSpy.mockResolvedValueOnce({
+    fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () => mockBookData,
     } as Response);
 
     const result = await lookupISBN("2070612759");
 
-    expect(fetchSpy).toHaveBeenCalledWith(
+    expect(fetchMock).toHaveBeenCalledWith(
       "https://www.googleapis.com/books/v1/volumes?q=isbn:2070612759",
       expect.any(Object)
     );
@@ -49,7 +49,7 @@ describe("isbn.service - lookupISBN", () => {
       titre: "Le Petit Prince",
       auteur: "Antoine de Saint-Exupéry",
       resume: "Un conte poétique et philosophique...",
-      couverture: "https://books.google.com/thumbnail.jpg", // http should be replaced with https
+      couverture: "https://books.google.com/thumbnail.jpg",
     });
   });
 
@@ -66,7 +66,7 @@ describe("isbn.service - lookupISBN", () => {
       ],
     };
 
-    fetchSpy.mockResolvedValueOnce({
+    fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () => mockBookData,
     } as Response);
@@ -81,13 +81,12 @@ describe("isbn.service - lookupISBN", () => {
         {
           volumeInfo: {
             title: "Minimal Book Info",
-            // authors, description, imageLinks are missing
           },
         },
       ],
     };
 
-    fetchSpy.mockResolvedValueOnce({
+    fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () => mockBookData,
     } as Response);
@@ -102,7 +101,7 @@ describe("isbn.service - lookupISBN", () => {
   });
 
   it("should return null if the fetch response is not ok", async () => {
-    fetchSpy.mockResolvedValueOnce({
+    fetchMock.mockResolvedValueOnce({
       ok: false,
     } as Response);
 
@@ -111,14 +110,14 @@ describe("isbn.service - lookupISBN", () => {
   });
 
   it("should return null if fetch throws an error", async () => {
-    fetchSpy.mockRejectedValueOnce(new Error("Network Error"));
+    fetchMock.mockRejectedValueOnce(new Error("Network Error"));
 
     const result = await lookupISBN("9782070612758");
     expect(result).toBeNull();
   });
 
   it("should return null if search returns no items", async () => {
-    fetchSpy.mockResolvedValueOnce({
+    fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ items: [] }),
     } as Response);
