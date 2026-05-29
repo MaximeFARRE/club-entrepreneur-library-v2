@@ -87,3 +87,27 @@ export async function deleteLoansForBook(livreId: number): Promise<void> {
 
   if (error) throw new Error(`deleteLoansForBook: ${error.message}`);
 }
+
+export async function getEmpruntsByBorrower(email: string): Promise<EmpruntAvecLivre[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("emprunts")
+    .select("*, livres(id, titre, auteur, couverture)")
+    .eq("emprunteur_email", email)
+    .order("date_emprunt", { ascending: false });
+
+  if (error) throw new Error(`getEmpruntsByBorrower: ${error.message}`);
+  return data as EmpruntAvecLivre[];
+}
+
+export async function getLoansByOwnerBooks(email: string): Promise<EmpruntAvecLivre[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("emprunts")
+    .select("*, livres!inner(id, titre, auteur, couverture, proprietaire_email)")
+    .eq("livres.proprietaire_email", email)
+    .order("date_emprunt", { ascending: false });
+
+  if (error) throw new Error(`getLoansByOwnerBooks: ${error.message}`);
+  return data as EmpruntAvecLivre[];
+}
