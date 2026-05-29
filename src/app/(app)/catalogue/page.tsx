@@ -2,6 +2,7 @@ import { getAllLivres } from "@/services/livre.service";
 import type { DisponibiliteFilter, Livre } from "@/types";
 import CatalogueFilters from "./CatalogueFilters";
 import Image from "next/image";
+import Link from "next/link";
 
 const BADGE_STYLES: Record<string, string> = {
   Disponible: "bg-green-100 text-green-800",
@@ -56,23 +57,26 @@ export default async function CataloguePage({
 
 function LivreCard({ livre }: { livre: Livre }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <Link
+      href={`/catalogue/${livre.id}`}
+      className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-gray-300 transition-all group"
+    >
       {livre.couverture ? (
         <div className="relative h-48 w-full bg-gray-100">
           <Image
             src={livre.couverture}
             alt={`Couverture de ${livre.titre}`}
             fill
-            className="object-contain p-2"
+            className="object-contain p-2 group-hover:scale-[1.03] transition-transform duration-350"
             unoptimized
           />
         </div>
       ) : (
-        <div className="flex h-48 items-center justify-center bg-gray-100 text-4xl">📚</div>
+        <div className="flex h-48 items-center justify-center bg-gray-100 text-4xl group-hover:scale-[1.03] transition-transform duration-350">📚</div>
       )}
 
       <div className="flex flex-1 flex-col p-4 space-y-2">
-        <h2 className="line-clamp-2 text-sm font-semibold text-gray-900">
+        <h2 className="line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
           {livre.titre}
         </h2>
         <p className="text-xs text-gray-500">{livre.auteur}</p>
@@ -89,6 +93,6 @@ function LivreCard({ livre }: { livre: Livre }) {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

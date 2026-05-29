@@ -13,13 +13,31 @@ export async function getUserProfile(): Promise<Profile | null> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
 
-  if (error) return null;
+  if (error && error.code === "PGRST116") {
+    const defaultNom = user.user_metadata?.nom || user.email?.split("@")[0] || "Membre";
+    const { data: newProfile, error: insertError } = await supabase
+      .from("profiles")
+      .insert({
+        id: user.id,
+        role: "member",
+        nom: defaultNom,
+      })
+      .select()
+      .single();
+
+    if (!insertError && newProfile) {
+      data = newProfile;
+      error = null;
+    }
+  }
+
+  if (error || !data) return null;
   // CHECK constraint in DB guarantees role is "admin" | "member"
   return data as Profile;
 }

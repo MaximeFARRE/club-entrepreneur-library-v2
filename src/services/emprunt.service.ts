@@ -96,3 +96,7 @@ export function determineLoanStatus(
   if (daysLeft <= ORANGE_THRESHOLD_DAYS) return "orange";
   return "green";
 }
+
+export async function getLoansForBook(livreId: number): Promise<Emprunt[]> {
+  return historiqueRepo.getLoansForBook(livreId);
+}
