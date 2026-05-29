@@ -3,9 +3,17 @@
 import { useState, useTransition } from "react";
 import { isbnLookupAction, addBookAction } from "./actions";
 
-export default function AjouterForm() {
+export default function AjouterForm({
+  defaultOwnerName,
+  defaultOwnerEmail,
+}: {
+  defaultOwnerName: string;
+  defaultOwnerEmail: string;
+}) {
   const [isbn, setIsbn] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [ownerName, setOwnerName] = useState(defaultOwnerName);
+  const [ownerEmail, setOwnerEmail] = useState(defaultOwnerEmail);
   const [fields, setFields] = useState({
     titre: "",
     auteur: "",
@@ -68,8 +76,21 @@ export default function AjouterForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Nom du propriétaire *" name="proprietaire" required />
-        <Field label="Email du propriétaire *" name="proprietaire_email" type="email" required />
+        <Field
+          label="Nom du propriétaire *"
+          name="proprietaire"
+          value={ownerName}
+          onChange={setOwnerName}
+          required
+        />
+        <Field
+          label="Email du propriétaire *"
+          name="proprietaire_email"
+          value={ownerEmail}
+          onChange={setOwnerEmail}
+          type="email"
+          required
+        />
       </div>
 
       <Field
