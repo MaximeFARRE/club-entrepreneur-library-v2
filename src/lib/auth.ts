@@ -20,7 +20,8 @@ export async function getUserProfile(): Promise<Profile | null> {
     .single();
 
   if (error) return null;
-  return data;
+  // CHECK constraint in DB guarantees role is "admin" | "member"
+  return data as Profile;
 }
 
 export async function getUserRole(): Promise<"admin" | "member" | null> {

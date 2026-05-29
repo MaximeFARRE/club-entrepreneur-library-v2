@@ -1,5 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/types/supabase";
 import type { InsertLivre, Livre, UpdateLivre } from "@/types";
+
+type DBInsertLivre = Database["public"]["Tables"]["livres"]["Insert"];
+type DBUpdateLivre = Database["public"]["Tables"]["livres"]["Update"];
 
 export async function getLivres(
   filter?: "Disponible" | "Indisponible" | "Archivé"
@@ -19,7 +23,8 @@ export async function getLivres(
 
   const { data, error } = await query;
   if (error) throw new Error(`getLivres: ${error.message}`);
-  return data;
+  // CHECK constraint in DB guarantees disponibilite is a valid Disponibilite value
+  return data as Livre[];
 }
 
 export async function getLivresAvecArchives(): Promise<Livre[]> {
@@ -30,7 +35,7 @@ export async function getLivresAvecArchives(): Promise<Livre[]> {
     .order("date_ajout", { ascending: false });
 
   if (error) throw new Error(`getLivresAvecArchives: ${error.message}`);
-  return data;
+  return data as Livre[];
 }
 
 export async function getLivre(id: number): Promise<Livre | null> {
@@ -42,19 +47,19 @@ export async function getLivre(id: number): Promise<Livre | null> {
     .single();
 
   if (error) return null;
-  return data;
+  return data as Livre;
 }
 
 export async function addLivre(data: InsertLivre): Promise<Livre> {
   const supabase = await createClient();
   const { data: livre, error } = await supabase
     .from("livres")
-    .insert(data)
+    .insert(data as DBInsertLivre)
     .select()
     .single();
 
   if (error) throw new Error(`addLivre: ${error.message}`);
-  return livre;
+  return livre as Livre;
 }
 
 export async function updateLivre(
@@ -64,13 +69,13 @@ export async function updateLivre(
   const supabase = await createClient();
   const { data: livre, error } = await supabase
     .from("livres")
-    .update(data)
+    .update(data as DBUpdateLivre)
     .eq("id", id)
     .select()
     .single();
 
   if (error) throw new Error(`updateLivre: ${error.message}`);
-  return livre;
+  return livre as Livre;
 }
 
 export async function archiveLivre(id: number): Promise<void> {
