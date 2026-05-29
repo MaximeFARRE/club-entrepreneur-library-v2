@@ -29,7 +29,8 @@ Next.js App Router pages and layouts.
 ```text
 app/
 ├── (auth)/
-│   └── login/page.tsx          # Login page (public)
+│   ├── login/page.tsx          # Login page (public)
+│   └── signup/page.tsx         # Signup page (public)
 ├── (app)/
 │   ├── layout.tsx              # Auth guard + nav
 │   ├── page.tsx                # Dashboard
@@ -38,9 +39,10 @@ app/
 │   ├── emprunter/page.tsx      # Record a borrow
 │   ├── rendre/page.tsx         # Record a return
 │   ├── historique/page.tsx     # Borrow history
+│   ├── profil/page.tsx         # Personal Space dashboard
 │   └── gerer/page.tsx          # Admin — manage books
 └── api/
-    └── notifications/route.ts  # Cron webhook for overdue reminders
+    └── notifications/route.ts  # Cron webhook for overdue reminders (emails paused)
 ```
 
 ### 2. Business Logic Layer — `src/services/`
@@ -49,21 +51,23 @@ Pure TypeScript functions. No Supabase client. No UI imports.
 
 - `livre.service.ts` — catalog operations, ISBN lookup orchestration
 - `emprunt.service.ts` — borrow/return processing, overdue detection, status color
-- `notification.service.ts` — email composition and dispatch rules
+- `profile.service.ts` — user profile operations (name validations)
+- `notification.service.ts` — email composition and dispatch rules (emails currently paused)
 - `isbn.service.ts` — Google Books API integration
 
 Business rules centralized here:
 - Loan period: **30 days**
-- Status color logic: green (returned or >3 days left), orange (≤3 days), red (overdue)
+- Status color logic: green (returned or >7 days left), orange (≤7 days), red (overdue)
 - Overdue: `date_retour IS NULL AND date_retour_prevue < NOW()`
-- Emails sent on: borrow (→ borrower + owner), return (→ borrower + owner), overdue reminder (→ borrower)
+- Emails sent on (paused): borrow (→ borrower + owner), return (→ borrower + owner), overdue reminder (→ borrower)
 
 ### 3. Data Access Layer — `src/repositories/`
 
 All Supabase queries. No business logic. No email calls.
 
-- `livre.repository.ts` — CRUD on `livres` table
-- `historique.repository.ts` — CRUD on `emprunts` table
+- `livre.repository.ts` — CRUD on `livres` table + query books owned by user
+- `historique.repository.ts` — CRUD on `emprunts` table + query borrows and shared book loans
+- `profile.repository.ts` — updates on `profiles` table
 
 ### 4. Shared — `src/`
 
@@ -83,11 +87,11 @@ src/
 
 Handled entirely by **Supabase Auth**.
 
-- Login via email/password.
+- Login and Sign Up via email/password.
 - `middleware.ts` at the root protects all `(app)/` routes — unauthenticated users are redirected to `/login`.
-- Role discrimination: a `role` field in `auth.users.user_metadata` (`"admin"` or `"member"`).
-  - **Member**: can browse catalog, borrow, return.
-  - **Admin**: can add, edit, archive, and delete books; access the manage page.
+- Role discrimination: a `role` field in the database `profiles` table (`"admin"` or `"member"`).
+  - **Member**: can browse catalog, borrow, return, add books, and access their personal space ("Mon Espace").
+  - **Admin**: everything above + edit, archive, and delete books; access the manage page.
 
 ---
 
