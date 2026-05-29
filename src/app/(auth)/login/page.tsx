@@ -1,4 +1,5 @@
 import { loginAction } from "./actions";
+import Link from "next/link";
 
 const ERROR_MESSAGES: Record<string, string> = {
   invalid_credentials: "Identifiants incorrects. Vérifiez votre email et mot de passe.",
@@ -29,7 +30,16 @@ export default async function LoginPage({
           </p>
         )}
 
-        <LoginForm />
+        <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <LoginForm />
+          
+          <div className="text-center text-sm text-gray-500">
+            Pas de compte ?{" "}
+            <Link href="/signup" className="font-semibold text-blue-600 hover:text-blue-500">
+              Créer un compte
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );
