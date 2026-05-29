@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "gen:types": "supabase gen types typescript --project-id vcejwjifwkxatltmgwzc 2>/dev/null > src/types/supabase.ts"
   },
   "dependencies": {
