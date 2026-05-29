@@ -1,29 +1,45 @@
 # Club Entrepreneur Library Manager — v2
 
-> The official library management system built by and for the members of the Club Entrepreneur student association at Pôle Léonard de Vinci.
+> The official, premium library management system built by and for the members of the Club Entrepreneur student association at Pôle Léonard de Vinci.
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
-![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase)
-![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)
-![License](https://img.shields.io/badge/license-MIT-green)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15.3.2-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
+[![TypeScript 5](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+[![Vitest](https://img.shields.io/badge/Vitest-Unit%20Testing-76E1FE?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Vercel](https://img.shields.io/badge/Vercel-Production%20Ready-black?style=for-the-badge&logo=vercel)](https://vercel.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-## Project Purpose
+---
 
-Built as a custom tool for the Club Entrepreneur (Campus Léonard de Vinci), this application replaces chaotic spreadsheets to manage the association's private book collection. It centralizes the catalog, tracks member loans, enforces return dates, and automatically sends email reminders to overdue borrowers.
+## Project Purpose & Context
 
-This is a full rewrite of the original Streamlit/Python v1, migrated to a modern React/Next.js stack with a proper cloud database and authentication.
+The **Club Entrepreneur** library (Campus Léonard de Vinci, Paris La Défense) holds a private collection of reference books on business, startup methodology, product development, design, and personal growth. 
 
-## Main Features
+### Why Version 2?
+Version 1 was a quick prototype built using Python and Streamlit. While it proved the concept, it suffered from several technical limitations:
+- **No User Isolation**: Lacked proper authenticated profiles; members entered details manually for every borrow.
+- **Security Vulnerabilities**: Direct write access to database-like sheets with no access control.
+- **Race Conditions**: Parallel borrows on the same book could lead to data corruption.
+- **Performance**: High latency in data rendering.
 
-- **Catalog**: View, search, and filter the entire book collection (All / Available / Borrowed)
-- **Inventory**: Add new books (manual or via ISBN auto-fill, capturing category too), now open to all authenticated users
-- **Borrowing & Returns**: Record loans, automatically calculate due dates (30-day period), register returns
-- **Personal Space ("Mon Espace")**: Users can track their active borrows, shared books (viewing who currently holds them), history, stats, and update their name
-- **History**: Full ledger of all past borrowing activity with color-coded urgency indicators (🟢/🟠/🔴)
-- **Dashboard**: Key metrics at a glance (total books, available, overdue) with a late-returns list
-- **Notifications**: Simulated logs on borrow, return, and overdue events (email dispatch paused)
-- **Authentication**: Supabase Auth — register (sign up) and log in, with admin roles for book management (edit, delete, archive)
+**Version 2** is a complete, enterprise-grade rewrite. Built on **Next.js 15**, **TypeScript**, and **Supabase (PostgreSQL)**, it introduces a clean 3-tier architecture, robust Row Level Security (RLS), real-time search, automated ISBN metadata retrieval, and personal dashboards.
+
+---
+
+## Key Features
+
+- **📚 Catalog & Real-Time Discovery**: Browse, search (full-text search on title/author), and filter books by availability (All / Available / Borrowed).
+- **🔍 Smart ISBN Lookup**: Add a book instantly by scanning or entering its ISBN. Automatically fetches and binds the title, authors, genres/categories, summary, and cover image from the **Google Books API**.
+- **👥 Member Account Creation**: Allows self-registration via `/signup`. The trigger automatically synchronizes newly created Auth users with the database `profiles` table.
+- **👤 Personal Space ("Mon Espace")**: Each member gets a dedicated space `/profil` containing:
+  - Personal reading metrics.
+  - Active borrows tracking (with return due dates and color-coded status badges).
+  - Borrowing history ledger.
+  - Shared books manager showing which of their books are currently lent out and **who currently holds them** (name and email).
+  - Inline settings to edit their display name.
+- **🛡️ Secure Transactions**: Invariants enforced at the service boundary to prevent double-booking or illegal return actions.
+- **📊 Administration Dashboard**: Key metrics (total books, available, borrowed, overdue count) and a late-returns tracking table with a bulk-nudge trigger (logs late notifications).
+- **🔒 Role-Based Access Control**: Strict division between `member` and `admin` roles, verified on the server side in Server Actions and in the database through PostgreSQL RLS policies.
 
 ## Tech Stack
 
