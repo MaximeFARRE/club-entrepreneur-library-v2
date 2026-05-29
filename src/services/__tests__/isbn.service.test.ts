@@ -5,11 +5,14 @@ describe("isbn.service - lookupISBN", () => {
   const fetchMock = vi.fn();
 
   beforeEach(() => {
+    fetchMock.mockClear();
     vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it("should return null immediately and not fetch if the ISBN format is invalid", async () => {
@@ -127,5 +130,65 @@ describe("isbn.service - lookupISBN", () => {
 
     const result = await lookupISBN("9782070612758");
     expect(result).toBeNull();
+  });
+
+  it("should accept valid 10-digit ISBN ending with X or x", async () => {
+    const mockBookData = {
+      items: [
+        {
+          volumeInfo: {
+            title: "Père riche, père pauvre",
+            authors: ["Robert T. Kiyosaki"],
+            description: "Some description",
+          },
+        },
+      ],
+    };
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockBookData,
+    } as Response);
+
+    const result = await lookupISBN("289225955X");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://www.googleapis.com/books/v1/volumes?q=isbn:289225955X",
+      expect.any(Object)
+    );
+    expect(result?.titre).toBe("Père riche, père pauvre");
+  });
+
+  it("should fallback to Open Library API when Google Books fails", async () => {
+    // 1. Google Books fails (429 or other)
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+    } as Response);
+
+    // 2. Open Library succeeds
+    const mockOLData = {
+      "ISBN:289225955X": {
+        title: "Père riche, père pauvre",
+        authors: [{ name: "Robert T. Kiyosaki" }],
+        subjects: [{ name: "Finance" }],
+        description: "Notes on wealth",
+        cover: { large: "https://covers.openlibrary.org/b/id/8751298-L.jpg" }
+      }
+    };
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockOLData,
+    } as Response);
+
+    const result = await lookupISBN("289225955X");
+    expect(result).toEqual({
+      titre: "Père riche, père pauvre",
+      auteur: "Robert T. Kiyosaki",
+      categorie: "Finance",
+      resume: "Notes on wealth",
+      couverture: "https://covers.openlibrary.org/b/id/8751298-L.jpg",
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
