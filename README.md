@@ -113,68 +113,110 @@ sequenceDiagram
 | **Backend & DB** | [Supabase](https://supabase.com/) | Postgres backend, instantaneous Authentication, and robust security policies. |
 | **Unit Testing** | [Vitest](https://vitest.dev/) | Sub-millisecond testing speeds, native ES modules support, and easy path resolution. |
 
-## Installation
+## Repository Structure
 
+The application is structured into a strict **3-tier layout** separating views, business calculations, and database queries:
+
+```text
+.
+├── src/
+│   ├── app/                    # Presentation Layer (Next.js pages & layouts)
+│   │   ├── (auth)/             # Public authentication routing (login, signup)
+│   │   ├── (app)/              # Guarded application routes (dashboard, catalog, profiles)
+│   │   │   ├── page.tsx        # Dashboard metrics and overdue list
+│   │   │   ├── catalogue/      # Catalog browser and filters
+│   │   │   ├── ajouter/        # Book adding flow (ISBN autofill + manual)
+│   │   │   ├── emprunter/      # Loan entry form
+│   │   │   ├── rendre/         # Return entry form
+│   │   │   ├── historique/     # Ledger table
+│   │   │   ├── profil/         # Member personal space dashboard
+│   │   │   └── gerer/          # Admin CRUD panel
+│   │   └── api/                # API endpoints (cron webhooks)
+│   ├── services/               # Business Logic Layer (pure typescript, no direct Supabase)
+│   │   ├── __tests__/          # Service unit tests (Vitest)
+│   │   ├── livre.service.ts    # Business logic for book curation and ISBN
+│   │   ├── emprunt.service.ts  # Rules for loans, status calculations (J+30, colors)
+│   │   └── profile.service.ts  # Rules for profile updates (name checks)
+│   ├── repositories/           # Data Access Layer (raw Supabase queries only)
+│   │   ├── livre.repository.ts # Supabase queries on 'livres' table
+│   │   ├── historique.repository.ts # Supabase queries on 'emprunts' table
+│   │   └── profile.repository.ts # Supabase queries on 'profiles' table
+│   ├── lib/
+│   │   └── supabase/           # Supabase client instances (browser-safe & server-safe)
+│   └── types/                  # Shared TypeScript type definitions
+├── docs/                       # Comprehensive development, specifications, and architecture docs
+└── supabase/
+    └── migrations/             # SQL schema migrations (RLS, tables, indexes, triggers)
+```
+
+---
+
+## Database Security (Row Level Security)
+
+RLS is strictly enforced at the database level:
+- **`profiles`**: All logged-in users can view all profiles (to see book owners). Users can only update their own profile name (`id = auth.uid()`).
+- **`livres`**: Read is public to authenticated users. Book insertion is open to all members (to share books). Update and delete are restricted to administrators.
+- **`emprunts`**: Read is public to authenticated users. Insertion is open to all users (anyone can record a borrow). Updates and deletions are restricted to administrators.
+
+---
+
+## Development Setup
+
+### 1. Installation
+Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/MaximeFARRE/club-entrepreneur-library-v2.git
 cd club-entrepreneur-library-v2
 npm install
 ```
 
-Copy the environment file and fill in your Supabase credentials:
-
+### 2. Environment Variables
+Create a `.env.local` file at the root:
 ```bash
 cp .env.local.example .env.local
 ```
-
+Provide the appropriate keys from your Supabase dashboard:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-RESEND_API_KEY=your_resend_api_key
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-secret-key
+CRON_SECRET=your-random-cron-secret
 ```
 
-Run the development server:
+### 3. Database Schema Setup
+You can push the database migrations directly using the Supabase CLI:
+```bash
+npx supabase db push
+```
+Alternatively, apply the SQL schemas sequentially from [DATABASE_SCHEMA.md](file:///Users/macbook/Documents/Projet%20perso/club-entrepreneur-library-v2/docs/DATABASE_SCHEMA.md) in the Supabase SQL editor.
 
+### 4. Running the App
+Start the hot-reloading development server:
 ```bash
 npm run dev
 ```
-
 Open [http://localhost:3000](http://localhost:3000).
 
-## Repository Structure
+---
 
-```text
-.
-├── src/
-│   ├── app/                    # Next.js App Router — pages and layouts
-│   │   ├── (auth)/             # Auth routes (login, signup)
-│   │   ├── (app)/              # Protected app routes
-│   │   │   ├── page.tsx        # Dashboard (accueil)
-│   │   │   ├── catalogue/      # Book catalog with filters
-│   │   │   ├── ajouter/        # Add a book (ISBN lookup + manual)
-│   │   │   ├── emprunter/      # Record a borrow
-│   │   │   ├── rendre/         # Record a return
-│   │   │   ├── historique/     # Full borrow history
-│   │   │   ├── profil/         # User profile and stats
-│   │   │   └── gerer/          # Admin — manage books
-│   │   └── api/                # API routes (webhooks, cron)
-│   ├── services/               # Business logic (no DB calls here)
-│   │   └── __tests__/          # Service unit tests (Vitest)
-│   ├── repositories/           # Supabase queries (no business logic here)
-│   ├── lib/
-│   │   └── supabase/           # Supabase client helpers (browser + server)
-│   └── types/                  # Shared TypeScript types
-├── docs/                       # Architecture, development, roadmap, plans
-└── supabase/
-    └── migrations/             # SQL database migration files
+## Testing & Typechecks
+
+We utilize **Vitest** for isolated unit testing. To run the full test suite (39 tests checking validation, calculations, date handling, sorting, and error boundaries):
+```bash
+# Run tests once
+npm test
+
+# Run tests in interactive watch mode
+npx vitest
 ```
+
+To run a static typecheck on the codebase:
+```bash
+npx tsc --noEmit
+```
+
+---
 
 ## Contributors
 
-- Maxime FARRE
-
-## Limitations
-
-- Single-tenant — designed for one book club.
-- Email delivery requires a configured [Resend](https://resend.com/) API key.
+- **Maxime FARRE** (Club Entrepreneur Lead Dev)
