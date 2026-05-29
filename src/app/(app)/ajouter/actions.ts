@@ -26,6 +26,6 @@ export async function addBookAction(formData: FormData) {
 
 export async function isbnLookupAction(
   isbn: string
-): Promise<{ titre: string; auteur: string; resume: string | null; couverture: string | null } | null> {
+): Promise<{ titre: string; auteur: string; categorie: string | null; resume: string | null; couverture: string | null } | null> {
   return lookupISBN(isbn);
 }
