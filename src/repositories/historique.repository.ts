@@ -111,3 +111,15 @@ export async function getLoansByOwnerBooks(email: string): Promise<EmpruntAvecLi
   if (error) throw new Error(`getLoansByOwnerBooks: ${error.message}`);
   return data as EmpruntAvecLivre[];
 }
+
+export async function getLoansForBook(livreId: number): Promise<Emprunt[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("emprunts")
+    .select("*")
+    .eq("id_livre", livreId)
+    .order("date_emprunt", { ascending: false });
+
+  if (error) throw new Error(`getLoansForBook: ${error.message}`);
+  return data as Emprunt[];
+}
