@@ -96,7 +96,7 @@ export default async function ProfilPage({
             <h2 className="text-lg font-semibold text-gray-900">Mes emprunts en cours</h2>
             {activeBorrows.length === 0 ? (
               <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
-                Vous n'avez aucun livre emprunté pour le moment.{" "}
+                Vous n&apos;avez aucun livre emprunté pour le moment.{" "}
                 <Link href="/catalogue" className="font-semibold text-blue-600 hover:underline">
                   Découvrir le catalogue
                 </Link>
@@ -136,7 +136,7 @@ export default async function ProfilPage({
             <h2 className="text-lg font-semibold text-gray-900">Mes livres partagés (lending status)</h2>
             {ownedBooks.length === 0 ? (
               <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
-                Vous n'avez pas encore partagé de livres.{" "}
+                Vous n&apos;avez pas encore partagé de livres.{" "}
                 <Link href="/ajouter" className="font-semibold text-blue-600 hover:underline">
                   Ajouter un livre à prêter
                 </Link>
@@ -199,7 +199,7 @@ export default async function ProfilPage({
 
           {/* Borrowing History */}
           <section className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Mon Historique d'emprunts</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Mon Historique d&apos;emprunts</h2>
             {borrowHistory.length === 0 ? (
               <p className="text-sm text-gray-500 italic">Aucun emprunt passé enregistré.</p>
             ) : (

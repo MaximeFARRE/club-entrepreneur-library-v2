@@ -17,9 +17,15 @@ export default async function AppLayout({
           <div className="flex items-center gap-6">
             <Link
               href="/"
-              className="text-sm font-semibold text-gray-900 hover:text-blue-600"
+              className="flex items-center gap-2.5 text-sm font-bold text-gray-900 hover:text-blue-600 transition-colors"
             >
-              Club Entrepreneur
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo_icone.png"
+                alt="Club Entrepreneur Logo"
+                className="h-7 w-auto object-contain"
+              />
+              <span>Club Entrepreneur</span>
             </Link>
             <div className="flex gap-4">
               <NavLink href="/catalogue">Catalogue</NavLink>
