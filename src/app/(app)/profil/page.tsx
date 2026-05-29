@@ -2,7 +2,9 @@ import { getCurrentUser, getUserProfile } from "@/lib/auth";
 import { getLivresByOwner } from "@/services/livre.service";
 import { getEmpruntsByBorrower, getLoansByOwnerBooks, determineLoanStatus } from "@/services/emprunt.service";
 import { updateProfileNameAction } from "./actions";
+import { logoutAction } from "../actions";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { LoanStatus } from "@/types";
 
 const STATUS_BADGE: Record<LoanStatus, string> = {
@@ -31,10 +33,27 @@ export default async function ProfilPage({
   searchParams: Promise<{ error?: string; success?: string }>;
 }) {
   const [user, profile] = await Promise.all([getCurrentUser(), getUserProfile()]);
-  if (!user || !profile) {
+  if (!user) {
+    redirect("/login");
+  }
+
+  if (!profile) {
     return (
-      <div className="text-center py-10">
-        <p className="text-gray-500">Chargement du profil...</p>
+      <div className="text-center py-12 space-y-4">
+        <h1 className="text-xl font-bold text-red-600">Profil introuvable</h1>
+        <p className="text-gray-500">
+          Votre compte n&apos;a pas de profil associé dans notre base de données.
+        </p>
+        <div className="flex justify-center gap-4">
+          <Link href="/" className="text-blue-600 hover:underline">
+            Retour à l&apos;accueil
+          </Link>
+          <form action={logoutAction}>
+            <button type="submit" className="text-red-600 hover:underline">
+              Se déconnecter
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
