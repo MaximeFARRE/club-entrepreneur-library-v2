@@ -27,29 +27,50 @@ export default async function AppLayout({
               />
               <span>Club Entrepreneur</span>
             </Link>
-            <div className="flex gap-4">
-              <NavLink href="/catalogue">Catalogue</NavLink>
-              <NavLink href="/emprunter">Emprunter</NavLink>
-              <NavLink href="/rendre">Rendre</NavLink>
-              <NavLink href="/historique">Historique</NavLink>
-              <NavLink href="/profil">Mon Espace</NavLink>
-              <NavLink href="/ajouter">Ajouter</NavLink>
-              {isAdmin && <NavLink href="/gerer">Gérer</NavLink>}
-            </div>
+            {user && (
+              <div className="flex gap-4">
+                <NavLink href="/catalogue">Catalogue</NavLink>
+                <NavLink href="/emprunter">Emprunter</NavLink>
+                <NavLink href="/rendre">Rendre</NavLink>
+                <NavLink href="/historique">Historique</NavLink>
+                <NavLink href="/profil">Mon Espace</NavLink>
+                <NavLink href="/ajouter">Ajouter</NavLink>
+                {isAdmin && <NavLink href="/gerer">Gérer</NavLink>}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
-            {user?.email && (
-              <span className="text-xs text-gray-500">{user.email}</span>
+            {user ? (
+              <>
+                {user.email && (
+                  <span className="text-xs text-gray-500 font-medium">{user.email}</span>
+                )}
+                <form action={logoutAction}>
+                  <button
+                    type="submit"
+                    className="rounded-md border border-gray-200 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Déconnexion
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-xs text-gray-600 hover:text-gray-900 transition-colors font-medium px-3 py-1.5"
+                >
+                  Se connecter
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-md bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 transition-colors font-semibold shadow-sm"
+                >
+                  S&apos;inscrire
+                </Link>
+              </>
             )}
-            <form action={logoutAction}>
-              <button
-                type="submit"
-                className="rounded-md border border-gray-200 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50"
-              >
-                Déconnexion
-              </button>
-            </form>
           </div>
         </div>
       </nav>
