@@ -2,15 +2,25 @@
 
 import { createLivre } from "@/services/livre.service";
 import { lookupISBN } from "@/services/isbn.service";
+import { getCurrentUser, getUserProfile } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export async function addBookAction(formData: FormData) {
+  const [user, profile] = await Promise.all([getCurrentUser(), getUserProfile()]);
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const ownerName = profile?.nom || user.email || "Membre du Club";
+  const ownerEmail = user.email || "";
+
   const data = {
     titre: (formData.get("titre") as string)?.trim(),
     auteur: (formData.get("auteur") as string)?.trim(),
     categorie: (formData.get("categorie") as string)?.trim() || null,
-    proprietaire: (formData.get("proprietaire") as string)?.trim(),
-    proprietaire_email: (formData.get("proprietaire_email") as string)?.trim(),
+    proprietaire: ownerName,
+    proprietaire_email: ownerEmail,
     resume: (formData.get("resume") as string)?.trim() || null,
     couverture: (formData.get("couverture") as string)?.trim() || null,
   };
