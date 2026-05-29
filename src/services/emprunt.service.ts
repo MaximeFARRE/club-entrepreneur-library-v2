@@ -71,6 +71,14 @@ export async function getAllHistory(): Promise<EmpruntAvecLivre[]> {
   return historiqueRepo.getHistorique();
 }
 
+export async function getEmpruntsByBorrower(email: string): Promise<EmpruntAvecLivre[]> {
+  return historiqueRepo.getEmpruntsByBorrower(email);
+}
+
+export async function getLoansByOwnerBooks(email: string): Promise<EmpruntAvecLivre[]> {
+  return historiqueRepo.getLoansByOwnerBooks(email);
+}
+
 export function determineLoanStatus(
   dateRetour: string | null,
   dateRetourPrevue: string
