@@ -25,6 +25,7 @@ describe("isbn.service - lookupISBN", () => {
           volumeInfo: {
             title: "Le Petit Prince",
             authors: ["Antoine de Saint-Exupéry"],
+            categories: ["Jeunesse", "Classique"],
             description: "Un conte poétique et philosophique...",
             imageLinks: {
               thumbnail: "http://books.google.com/thumbnail.jpg",
@@ -48,6 +49,7 @@ describe("isbn.service - lookupISBN", () => {
     expect(result).toEqual({
       titre: "Le Petit Prince",
       auteur: "Antoine de Saint-Exupéry",
+      categorie: "Jeunesse, Classique",
       resume: "Un conte poétique et philosophique...",
       couverture: "https://books.google.com/thumbnail.jpg",
     });
@@ -95,6 +97,7 @@ describe("isbn.service - lookupISBN", () => {
     expect(result).toEqual({
       titre: "Minimal Book Info",
       auteur: "",
+      categorie: null,
       resume: null,
       couverture: null,
     });
