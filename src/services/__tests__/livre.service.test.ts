@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as livreRepo from "@/repositories/livre.repository";
 import { createLivre } from "../livre.service";
-import type { InsertLivre } from "@/types";
+import type { InsertLivre, Livre } from "@/types";
 
 vi.mock("@/repositories/livre.repository", () => {
   return {
@@ -31,12 +31,18 @@ describe("livre.service - createLivre", () => {
   };
 
   it("should successfully validate and call repo.addLivre when data is valid", async () => {
-    const mockCreatedLivre = {
+    const mockCreatedLivre: Livre = {
       id: 1,
-      ...validData,
+      titre: validData.titre!,
+      auteur: validData.auteur!,
+      proprietaire: validData.proprietaire!,
+      proprietaire_email: validData.proprietaire_email!,
+      categorie: validData.categorie ?? null,
+      resume: validData.resume ?? null,
+      couverture: validData.couverture ?? null,
       disponibilite: "Disponible",
       emprunte_par: null,
-      created_at: new Date().toISOString(),
+      date_ajout: new Date().toISOString(),
     };
 
     vi.mocked(livreRepo.addLivre).mockResolvedValueOnce(mockCreatedLivre);
