@@ -42,21 +42,21 @@ This document is the source of truth for implementation.
 
 ## 3. Ajouter un livre (`/ajouter`)
 
-**Purpose**: Add a new book to the catalog.
+**Purpose**: Add a new book to the catalog (to lend to other members).
 
 **ISBN auto-fill flow:**
-1. User enters or scans an ISBN.
+1. User enters an ISBN.
 2. App calls the [Google Books API](https://www.googleapis.com/books/v1/volumes?q=isbn:{ISBN}).
-3. Fields pre-filled: title, author, summary, cover image URL.
-4. User fills in the remaining fields manually: category, owner name, owner email.
-5. User can override any pre-filled field before saving.
+3. Fields pre-filled: title, author, category, summary, cover image URL.
+4. User's own name and email are pre-filled as default owner name/email.
+5. User can override any pre-filled or default field before saving.
 
 **Manual entry**: all fields filled by hand if no ISBN.
 
 **Required fields**: titre, auteur, proprietaire, proprietaire_email.
 **Optional fields**: categorie, resume, couverture.
 
-**Access**: admin only.
+**Access**: all authenticated users (members and admins).
 
 ---
 
@@ -144,13 +144,15 @@ else → GREEN
 
 ## 8. Authentication
 
-**Login page (`/login`)**: email + password via Supabase Auth.
+**Login page (`/login`)**: email + password via Supabase Auth. Allows navigation to signup.
+
+**Signup page (`/signup`)**: full name, email, and password via Supabase Auth. Registers the user and triggers automatic creation of a default profile mapping the user's name.
 
 **Route protection**: Next.js `middleware.ts` redirects unauthenticated users to `/login`.
 
 **Roles**:
-- `member`: read catalog, borrow, return, view history and dashboard.
-- `admin`: everything above + add, edit, archive, delete books + "Relancer" button.
+- `member`: read catalog, borrow, return, view history, dashboard, register books, and access personal space.
+- `admin`: everything above + edit, archive, delete books + access manage books page + "Relancer" button.
 
 Role stored in `profiles.role`. Checked server-side in Server Actions and Server Components.
 
@@ -158,13 +160,11 @@ Role stored in `profiles.role`. Checked server-side in Server Actions and Server
 
 ## 9. Notifications (Overdue Reminders)
 
-**Trigger**: daily Vercel Cron job → `POST /api/notifications`.
+**Trigger**: daily Vercel Cron job → `POST /api/notifications` (currently logs overdue loans; email dispatch is paused).
 
-**Logic**: fetch all active loans where `date_retour_prevue < NOW()`. For each, send a reminder email to the borrower.
+**Logic**: fetch all active loans where `date_retour_prevue < NOW()`. For each, log details (reminders are currently simulated).
 
-**Email content**: book title, owner, borrow date, due date, number of days overdue.
-
-**Manual trigger**: "Relancer les retardataires" button on the dashboard (admin only) — calls the same logic on demand.
+**Manual trigger**: "Relancer les retardataires" button on the dashboard (admin only) — triggers simulated reminders in log.
 
 **Failures are silent**: email errors must never break the borrowing or return flow.
 
@@ -176,8 +176,25 @@ Role stored in `profiles.role`. Checked server-side in Server Actions and Server
 
 **Fields extracted**:
 - `volumeInfo.title` → titre
-- `volumeInfo.authors[0]` → auteur
+- `volumeInfo.authors` (joined with comma) → auteur
+- `volumeInfo.categories` (joined with comma) → categorie
 - `volumeInfo.description` → resume
-- `volumeInfo.imageLinks.thumbnail` → couverture
+- `volumeInfo.imageLinks.thumbnail` (http replaced with https) → couverture
 
 **Error handling**: if ISBN not found or API unreachable, show a message and let the user fill fields manually. Never block the form.
+
+---
+
+## 11. Mon Espace (`/profil`)
+
+**Purpose**: Personal user dashboard and settings.
+
+**Features:**
+- **Stats Card Grid**: displays active borrows count, total history borrows count, count of books owned by user currently lent to others, and total books owned.
+- **Mes emprunts en cours**: displays grid of currently borrowed books by the user, with title, author, cover, return due date, and relative delay color status (🟢/🟠/🔴).
+- **Mes livres partagés**: displays a list of books owned by the user. If a book is lent out, shows **who holds it** (borrower's name and email) and the return due date.
+- **Mon Historique d'emprunts**: list of past completed borrowings.
+- **Modifier mes infos**: side form allowing users to update their full name.
+
+**Access**: all authenticated users.
+

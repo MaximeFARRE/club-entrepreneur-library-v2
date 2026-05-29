@@ -386,9 +386,9 @@ chore: finalize production configuration
 
 ## Checklist avant mise en production
 
-- [ ] `npx tsc --noEmit` passe sans erreur
-- [ ] Tous les tests passent
-- [ ] RLS vérifié pour les rôles member et admin
+- [x] `npx tsc --noEmit` passe sans erreur
+- [x] Tous les tests passent
+- [x] RLS vérifié pour les rôles member et admin
 - [ ] Variables d'environnement configurées dans Vercel
 - [ ] Cron actif et testé
 - [ ] Test complet du flux emprunt → retour → email en production

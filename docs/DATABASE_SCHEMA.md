@@ -60,8 +60,12 @@ CREATE TABLE profiles (
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, role)
-  VALUES (NEW.id, 'member');
+  INSERT INTO profiles (id, role, nom)
+  VALUES (
+    NEW.id,
+    'member',
+    coalesce(NEW.raw_user_meta_data->>'nom', '')
+  );
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -99,9 +103,7 @@ CREATE POLICY "livres_select" ON livres
 
 CREATE POLICY "livres_insert" ON livres
   FOR INSERT TO authenticated
-  WITH CHECK (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+  WITH CHECK (true);
 
 CREATE POLICY "livres_update" ON livres
   FOR UPDATE TO authenticated
