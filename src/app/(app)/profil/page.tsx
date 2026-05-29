@@ -4,6 +4,7 @@ import { getEmpruntsByBorrower, getLoansByOwnerBooks, determineLoanStatus } from
 import { updateProfileNameAction } from "./actions";
 import { logoutAction } from "../actions";
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import type { LoanStatus } from "@/types";
 
@@ -127,7 +128,7 @@ export default async function ProfilPage({
                   return (
                     <div key={e.id} className="flex gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                       {e.livres.couverture ? (
-                        <img src={e.livres.couverture} alt={e.livres.titre} className="h-20 w-14 object-cover rounded shadow-sm" />
+                        <Image src={e.livres.couverture} alt={e.livres.titre} width={56} height={80} className="h-20 w-14 object-cover rounded shadow-sm" />
                       ) : (
                         <div className="h-20 w-14 rounded bg-gray-100 flex items-center justify-center text-xs text-gray-400 font-medium">
                           No Cover
