@@ -17,7 +17,13 @@ export default async function LoginPage({
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
+        <div className="flex flex-col items-center text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt="Club Entrepreneur Logo"
+            className="h-20 w-auto object-contain mb-4"
+          />
           <h1 className="text-2xl font-bold text-gray-900">
             Club Entrepreneur
           </h1>
