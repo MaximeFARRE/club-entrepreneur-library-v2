@@ -47,8 +47,8 @@ export async function lookupISBN(isbn: string): Promise<ISBNLookupResult | null>
       if (bookInfo) {
         return {
           titre: bookInfo.title ?? "",
-          auteur: (bookInfo.authors ?? []).map((a: any) => a.name).join(", "),
-          categorie: (bookInfo.subjects ?? []).map((s: any) => s.name).join(", ") || null,
+          auteur: (bookInfo.authors ?? []).map((a: { name: string }) => a.name).join(", "),
+          categorie: (bookInfo.subjects ?? []).map((s: { name: string }) => s.name).join(", ") || null,
           resume: bookInfo.notes ?? bookInfo.description ?? null,
           couverture: (bookInfo.cover?.large ?? bookInfo.cover?.medium ?? bookInfo.cover?.small ?? null)?.replace("http://", "https://") ?? null,
         };
