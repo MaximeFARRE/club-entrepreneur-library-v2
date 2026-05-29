@@ -1,5 +1,63 @@
 # Changelog
 
+## [1.1.0](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/compare/v1.0.0...v1.1.0) (2026-05-29)
+
+
+### Features
+
+* accept and wire up defaultOwnerName and defaultOwnerEmail in AjouterForm ([d93f56d](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/d93f56d6c695df5828db8efb1f717b7798d30238))
+* add auth helpers for role checking ([5a61dcc](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/5a61dcc5f9dee19146f7e7d055625d76be7f6515))
+* add book creation page with isbn autofill ([6c51cab](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/6c51cabc99d49fa714a51ad4eadb2c2efadbe12d))
+* add book management page with edit, archive and delete actions ([1dc03eb](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/1dc03eb7ec5e8c5f841e1a8957107d4107afb3cd))
+* add borrow page ([a6fa6aa](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/a6fa6aa44c72f22054d5958517a0eafae9f69dc2))
+* add catalogue page with server-side data fetching ([c56eaf0](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/c56eaf0dec67198ec40ecc2a59c48925bf70a664))
+* add category fetching to isbn service ([8342a2b](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/8342a2b65e5caef6d2d7c23741f47cc0b7c67122))
+* add club logo icon to navigation layout ([d7cb91d](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/d7cb91d97998182b48797fcb1a21f957da1fd09b))
+* add club logo to login page header ([00e81a0](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/00e81a0cc7b65d3072742cb998546574887b7c07))
+* add club logo to signup page header ([fd047b6](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/fd047b651c6f876e98ca5c9c764063e6c6887ab0))
+* add daily overdue notification cron endpoint ([cdd4e35](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/cdd4e3556107270cf859d9a8da0295daee290364))
+* add dashboard metrics and overdue loans list ([10e13b4](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/10e13b4e66d855365154b700631f825d45906334))
+* add emprunt service with borrow and return logic ([6f8470c](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/6f8470cdc954918bf92f1d0bf9bcd6b1ff340227))
+* add getEmpruntsByBorrower and getLoansByOwnerBooks in emprunt service ([0cff60a](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/0cff60a58729b79a8f54965e6ba2ec468f066c1f))
+* add getEmpruntsByBorrower and getLoansByOwnerBooks in historique repository ([36ec9f2](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/36ec9f24d81778ade231546201ce855ca1699b09))
+* add getLivresByOwner in livre repository ([7bf845c](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/7bf845ce9b9fac444d82b4d450c4834c6158dc0e))
+* add getLivresByOwner in livre service ([c752bb6](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/c752bb6c508b2271b163364d310388d243dbf48d))
+* add historique page with color-coded loan status ([adc4231](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/adc42318a877964d8e0ff890b3ed90bb582db285))
+* add historique repository ([f4601bc](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/f4601bc8291d99c3d12b216e0a4a4d22694cf31d))
+* add isbn lookup service using google books api ([d07eece](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/d07eece110899dd0c1925110e29b85d064d6dff3))
+* add link to signup page in login page ([d5f148d](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/d5f148d5a3552d37866098599b785f5bcd5b65f5))
+* add livre repository with all crud operations ([d692478](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/d692478dce50e3585ce0313533b316b5965a465c))
+* add livre service with validation ([9338bbb](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/9338bbb39841b0378908aa478e69d5d2325153b4))
+* add login page with supabase auth ([f779b43](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/f779b43368882d1f5cac7c9b628aa5327dcbdf11))
+* add main app layout with navigation and logout ([2b6c1a0](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/2b6c1a03a2d953e056bc4375d075f19fbed8b0bc))
+* add Mon Espace link to navigation layout ([25af721](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/25af721a36c02bc430e3416536521def3c8bf155))
+* add profile repository to support profile updates ([150ca7c](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/150ca7c86a4cd6cd1ef01f485039711c0fc4ed4f))
+* add profile service with validation logic ([339483f](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/339483f01db4354e22b7e48f06334c4bd6716621))
+* add return page ([028defc](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/028defc45c9bf00e27298dffc7f90b01a8fcbab4))
+* add signup page UI component ([601ce12](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/601ce12fd00eb80634b95a42389c5b6476522d3a))
+* add signUpAction Server Action ([da8107d](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/da8107d42062dfd7cfe3dea269ad5462ec72134a))
+* add supabase auth middleware for route protection ([176080a](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/176080a1c0d3d1a1b99a559c463d3ef5853c6b34))
+* add supabase server and browser client helpers ([80c4e36](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/80c4e365aac8cea516618285a60dd4b7daf99ec2))
+* add updateProfileNameAction Server Action ([06ed910](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/06ed910e59a88dd80ce59ffdd841d554168d0dd9))
+* add user profile page UI component ([ad17c09](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/ad17c09712a308fbbb6ab0de17f9e3c83aa2491a))
+* allow members to access add book page and fetch profile details ([bade59d](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/bade59db6c6169dc6a26028272e8fabce12a077a))
+* make Categorie field controlled in book addition form ([27e65c4](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/27e65c4d3dce5c4e56934c2ffb2a031d6eaaeca2))
+* remove requireAdmin restriction from add book actions ([85dbff5](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/85dbff56721ed1595f0b9b7610beaf4de52d68bb))
+* scaffold complet — phases 0 à 6 ([28225d3](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/28225d30825fcea87b97f923098cafcbd846d627))
+* show Ajouter navigation link to all logged-in users ([e7d8ac2](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/e7d8ac2f9be6a87bdf7a79532f6f97a8087c6ff8))
+* update actions return type for isbn lookup category ([b709cff](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/b709cff5be36244a7f017775fd60baad1e1a2ca3))
+
+
+### Bug Fixes
+
+* add type casts for supabase string→union narrowing at db boundary ([f25bf5c](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/f25bf5cb0f6239cee185c40bbf90652e4f2a53f0))
+* escape unescaped quote in signup page ([0c7d548](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/0c7d5489834325aca0568eed0fc3dca81a93b9a0))
+* escape unescaped quotes in profil page ([9669173](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/966917369c74ba152e8356a71b016014f6acdcb2))
+* improve isbn lookup with check digit X and open library fallback ([1fcd53d](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/1fcd53d09f9d3220ec6ff82cc71c8acc2100764a))
+* reorder migrations — profiles must be created before livres (rls dependency) ([685fb76](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/685fb7674d5a8b741ed3c87ba9f966401b1adf7a))
+* resolve signup trigger database schema path and public profiles reference ([f6ca6ac](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/f6ca6acd1999608c5763537448a149f17e2d6bde))
+* use explicit types instead of any in Open Library mapping ([5478c77](https://github.com/MaximeFARRE/club-entrepreneur-library-v2/commit/5478c7755682bc32869c6545f265a96302acd65a))
+
 ## 1.0.0 (2026-05-29)
 
 
