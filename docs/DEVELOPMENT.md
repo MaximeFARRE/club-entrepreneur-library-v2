@@ -87,6 +87,28 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
+## Testing
+
+We use **Vitest** for unit testing. The test suites are located in `src/services/__tests__/`.
+
+### Running Tests
+
+- Run all tests once:
+  ```bash
+  npm test
+  ```
+- Run tests in watch mode (interactive):
+  ```bash
+  npx vitest
+  ```
+
+### Test Strategy
+- **Path Resolution**: We resolve `@/*` import paths in tests using the `vite-tsconfig-paths` plugin configured in `vitest.config.ts`.
+- **Global Fetch**: Global `fetch` is mocked using `vi.stubGlobal('fetch', mockFn)` to isolate API network calls (such as Google Books).
+- **Mocking Repositories**: Repository files (`livre.repository.ts`, `historique.repository.ts`, etc.) are mocked using `vi.mock()` to isolate service business logic and prevent actual database queries.
+
+---
+
 ## Adding a New Page
 
 1. Create a folder under `app/(app)/your-page/`.
