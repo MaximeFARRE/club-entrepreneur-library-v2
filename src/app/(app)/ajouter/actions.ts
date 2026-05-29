@@ -1,13 +1,10 @@
 "use server";
 
-import { requireAdmin } from "@/lib/auth";
 import { createLivre } from "@/services/livre.service";
 import { lookupISBN } from "@/services/isbn.service";
 import { redirect } from "next/navigation";
 
 export async function addBookAction(formData: FormData) {
-  await requireAdmin();
-
   const data = {
     titre: (formData.get("titre") as string)?.trim(),
     auteur: (formData.get("auteur") as string)?.trim(),
@@ -30,6 +27,5 @@ export async function addBookAction(formData: FormData) {
 export async function isbnLookupAction(
   isbn: string
 ): Promise<{ titre: string; auteur: string; resume: string | null; couverture: string | null } | null> {
-  await requireAdmin();
   return lookupISBN(isbn);
 }
