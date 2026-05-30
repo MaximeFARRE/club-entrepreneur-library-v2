@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getOverdueLoans } from "@/services/emprunt.service";
+import { getOverdueLoansForCron } from "@/services/emprunt.service";
+import { sendOverdueReminders } from "@/services/notification.service";
 
 export async function GET(request: Request) {
   const auth = request.headers.get("authorization");
@@ -7,21 +8,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const retardataires = await getOverdueLoans();
+  const retardataires = await getOverdueLoansForCron();
+  const result = await sendOverdueReminders(retardataires);
 
-  // Placeholder — notifications désactivées (pas de Resend)
-  // Chaque emprunt en retard est loggé pour audit
-  const count = retardataires.length;
-  console.log(`[CRON] ${count} emprunt(s) en retard détecté(s)`);
+  console.log(
+    `[CRON] ${retardataires.length} retard(s) — envoyés: ${result.sent}, échecs: ${result.failed}, ignorés: ${result.skipped}`
+  );
 
   return NextResponse.json({
     ok: true,
-    overdueCount: count,
-    loans: retardataires.map((e) => ({
-      livre: e.livres.titre,
-      emprunteur: e.emprunteur,
-      email: e.emprunteur_email,
-      prevue: e.date_retour_prevue,
-    })),
+    overdueCount: retardataires.length,
+    ...result,
   });
 }

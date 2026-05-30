@@ -49,16 +49,24 @@ export async function processReturn(
   await historiqueRepo.closeLoan(livreId, now, commentaire);
 }
 
-export async function getOverdueLoans(): Promise<EmpruntAvecLivre[]> {
-  const activeLoans = await historiqueRepo.getActiveLoans();
+function filterOverdue(loans: EmpruntAvecLivre[]): EmpruntAvecLivre[] {
   const now = new Date();
-  return activeLoans
+  return loans
     .filter((e) => new Date(e.date_retour_prevue) < now)
     .sort(
       (a, b) =>
         new Date(a.date_retour_prevue).getTime() -
         new Date(b.date_retour_prevue).getTime()
     );
+}
+
+export async function getOverdueLoans(): Promise<EmpruntAvecLivre[]> {
+  return filterOverdue(await historiqueRepo.getActiveLoans());
+}
+
+// Variante pour le cron (sans session) : lit via le client service-role.
+export async function getOverdueLoansForCron(): Promise<EmpruntAvecLivre[]> {
+  return filterOverdue(await historiqueRepo.getActiveLoans(true));
 }
 
 export async function getActiveLoans(): Promise<EmpruntAvecLivre[]> {

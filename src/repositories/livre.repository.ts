@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/supabase";
 import type { InsertLivre, Livre, UpdateLivre } from "@/types";
+
+export type Contributor = { proprietaire: string; proprietaire_email: string };
 
 type DBInsertLivre = Database["public"]["Tables"]["livres"]["Insert"];
 type DBUpdateLivre = Database["public"]["Tables"]["livres"]["Update"];
@@ -106,6 +109,19 @@ export async function updateAvailability(
     .eq("id", id);
 
   if (error) throw new Error(`updateAvailability: ${error.message}`);
+}
+
+// Lecture via le client service-role : appelée depuis un cron sans session.
+// Exclut les livres archivés. L'agrégation par membre se fait dans le service.
+export async function getActiveContributions(): Promise<Contributor[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("livres")
+    .select("proprietaire, proprietaire_email")
+    .neq("disponibilite", "Archivé");
+
+  if (error) throw new Error(`getActiveContributions: ${error.message}`);
+  return (data ?? []) as Contributor[];
 }
 
 export async function getLivresByOwner(email: string): Promise<Livre[]> {

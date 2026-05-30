@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Emprunt, EmpruntAvecLivre, InsertEmprunt } from "@/types";
 
 export async function getHistorique(): Promise<EmpruntAvecLivre[]> {
@@ -12,8 +13,9 @@ export async function getHistorique(): Promise<EmpruntAvecLivre[]> {
   return data as EmpruntAvecLivre[];
 }
 
-export async function getActiveLoans(): Promise<EmpruntAvecLivre[]> {
-  const supabase = await createClient();
+// `admin` force le client service-role (contourne le RLS) pour les crons sans session.
+export async function getActiveLoans(admin = false): Promise<EmpruntAvecLivre[]> {
+  const supabase = admin ? createAdminClient() : await createClient();
   const { data, error } = await supabase
     .from("emprunts")
     .select("*, livres(id, titre, auteur, couverture)")
