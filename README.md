@@ -29,17 +29,24 @@ Version 1 was a quick prototype built using Python and Streamlit. While it prove
 ## Key Features
 
 - **📚 Catalog & Real-Time Discovery**: Browse, search (full-text search on title/author), and filter books by availability (All / Available / Borrowed).
-- **🔍 Smart ISBN Lookup**: Add a book instantly by scanning or entering its ISBN. Automatically fetches and binds the title, authors, genres/categories, summary, and cover image from the **Google Books API**.
-- **👥 Member Account Creation**: Allows self-registration via `/signup`. The trigger automatically synchronizes newly created Auth users with the database `profiles` table.
+- **🔍 Smart ISBN Lookup & Auto-fill**: Add a book instantly by scanning or entering its ISBN. Automatically fetches and binds the title, authors, genres/categories, summary, and cover image from the **Google Books API**.
+  - **Controlled Tag Selector**: Categories are resolved and matched to pre-defined tags (e.g., Business, Product, Tech) to avoid catalog clutter.
+  - **Manual Adjustments**: Contributors can review and adjust any pre-filled field (including custom owner details or custom cover URLs) before saving.
+- **👥 Member Account Creation**: Allows self-registration via `/signup`. The database trigger automatically synchronizes newly created Auth users with the database `profiles` table.
 - **👤 Personal Space ("Mon Espace")**: Each member gets a dedicated space `/profil` containing:
-  - Personal reading metrics.
+  - Personal reading metrics and stats cards.
   - Active borrows tracking (with return due dates and color-coded status badges).
   - Borrowing history ledger.
   - Shared books manager showing which of their books are currently lent out and **who currently holds them** (name and email).
+  - Book deletion action: lets book owners remove their own contributed books and cascade-delete their borrow history.
   - Inline settings to edit their display name.
-- **🛡️ Secure Transactions**: Invariants enforced at the service boundary to prevent double-booking or illegal return actions.
-- **📊 Administration Dashboard**: Key metrics (total books, available, borrowed, overdue count) and a late-returns tracking table with a bulk-nudge trigger (logs late notifications).
+- **🛡️ Secure Transactions**: Invariants enforced at the service boundary and index constraints in the database to prevent double-booking or illegal actions.
+- **📊 Administration Dashboard**: Key metrics (total books, available, borrowed, overdue count) and a late-returns tracking table.
 - **🔒 Role-Based Access Control**: Strict division between `member` and `admin` roles, verified on the server side in Server Actions and in the database through PostgreSQL RLS policies.
+- **✉️ Transactional Notifications (Brevo)**: The system keeps users connected and coordinates book logistics using Brevo's transactional API:
+  - **Borrow Handoff coordination**: When a borrow occurs, an email is sent to the borrower (with the owner's email) and the owner (with the borrower's name, email, and phone number) to organize physical book delivery.
+  - **Overdue Reminders**: Automatic daily Vercel Cron checks active loans and sends a reminder email to late borrowers, which can also be manually triggered by admins from the dashboard.
+  - **Monthly Recap**: Monthly Vercel Cron aggregates shared book statistics and sends a thank-you summary to book owners to encourage active library participation.
 
 ---
 
