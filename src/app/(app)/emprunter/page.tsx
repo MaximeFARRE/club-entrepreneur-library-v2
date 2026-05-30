@@ -5,10 +5,11 @@ import Link from "next/link";
 export default async function EmprunterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; livreId?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, livreId } = await searchParams;
   const livres = await getAllLivres("Disponible");
+  const preselectedLivreId = livreId ? Number(livreId) : undefined;
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
@@ -36,6 +37,7 @@ export default async function EmprunterPage({
               <select
                 name="livre_id"
                 required
+                defaultValue={preselectedLivreId}
                 className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Sélectionner un livre…</option>
