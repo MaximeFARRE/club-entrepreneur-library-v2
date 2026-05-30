@@ -13,14 +13,15 @@ export async function borrowBookAction(formData: FormData) {
   const livreId = Number(formData.get("livre_id"));
   const emprunteur = profile?.nom || user.email || "Membre";
   const emprunteurEmail = user.email || "";
+  const telephone = (formData.get("telephone") as string)?.trim();
   const commentaire = (formData.get("commentaire") as string)?.trim();
 
-  if (!livreId) {
+  if (!livreId || !telephone) {
     redirect("/emprunter?error=missing_fields");
   }
 
   try {
-    await processBorrow(livreId, emprunteur, emprunteurEmail, commentaire);
+    await processBorrow(livreId, emprunteur, emprunteurEmail, telephone, commentaire);
   } catch (err) {
     redirect(`/emprunter?error=${encodeURIComponent((err as Error).message)}`);
   }
