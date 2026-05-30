@@ -52,7 +52,7 @@ describe("isbn.service - lookupISBN", () => {
     expect(result).toEqual({
       titre: "Le Petit Prince",
       auteur: "Antoine de Saint-Exupéry",
-      categorie: "Jeunesse, Classique",
+      categorie: null,
       resume: "Un conte poétique et philosophique...",
       couverture: "https://books.google.com/thumbnail.jpg",
     });
@@ -184,7 +184,7 @@ describe("isbn.service - lookupISBN", () => {
     expect(result).toEqual({
       titre: "Père riche, père pauvre",
       auteur: "Robert T. Kiyosaki",
-      categorie: "Finance",
+      categorie: null,
       resume: "Notes on wealth",
       couverture: "https://covers.openlibrary.org/b/id/8751298-L.jpg",
     });
