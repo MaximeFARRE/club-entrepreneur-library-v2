@@ -137,6 +137,87 @@ function buildMonthlyRecapEmail(name: string, count: number): { subject: string;
   return { subject, htmlContent };
 }
 
+export interface BorrowContext {
+  livreTitre: string;
+  livreAuteur: string;
+  dateRetourPrevue: string;
+  owner: { name: string; email: string };
+  borrower: { name: string; email: string; telephone: string };
+}
+
+function buildBorrowerEmail(ctx: BorrowContext): { subject: string; htmlContent: string } {
+  const subject = `Emprunt confirmé : « ${ctx.livreTitre} »`;
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
+      <h2 style="color: #1a1a1a;">Bonjour ${ctx.borrower.name},</h2>
+      <p>Ton emprunt de <strong>${ctx.livreTitre}</strong> (${ctx.livreAuteur}) est bien enregistré.
+      À rendre avant le <strong>${formatDate(ctx.dateRetourPrevue)}</strong>.</p>
+      <p>Pour organiser la remise du livre, voici le contact du propriétaire :</p>
+      <table style="border-collapse: collapse; margin: 16px 0;">
+        <tr><td style="padding: 4px 12px 4px 0; color: #666;">Propriétaire</td><td style="padding: 4px 0;"><strong>${ctx.owner.name}</strong></td></tr>
+        <tr><td style="padding: 4px 12px 4px 0; color: #666;">Email</td><td style="padding: 4px 0;"><a href="mailto:${ctx.owner.email}">${ctx.owner.email}</a></td></tr>
+      </table>
+      <p>Contacte-le pour convenir d'un point de rendez-vous. Bonne lecture !</p>
+      <p style="color: #666; font-size: 13px; margin-top: 24px;">
+        Message automatique de la bibliothèque du Club Entrepreneur (Pôle Léonard de Vinci).
+      </p>
+    </div>`;
+  return { subject, htmlContent };
+}
+
+function buildOwnerEmail(ctx: BorrowContext): { subject: string; htmlContent: string } {
+  const subject = `« ${ctx.livreTitre} » vient d'être emprunté`;
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
+      <h2 style="color: #1a1a1a;">Bonjour ${ctx.owner.name},</h2>
+      <p>Ton livre <strong>${ctx.livreTitre}</strong> (${ctx.livreAuteur}) vient d'être emprunté
+      par un membre. Retour prévu le <strong>${formatDate(ctx.dateRetourPrevue)}</strong>.</p>
+      <p>Pour organiser la remise du livre, voici le contact de l'emprunteur :</p>
+      <table style="border-collapse: collapse; margin: 16px 0;">
+        <tr><td style="padding: 4px 12px 4px 0; color: #666;">Emprunteur</td><td style="padding: 4px 0;"><strong>${ctx.borrower.name}</strong></td></tr>
+        <tr><td style="padding: 4px 12px 4px 0; color: #666;">Email</td><td style="padding: 4px 0;"><a href="mailto:${ctx.borrower.email}">${ctx.borrower.email}</a></td></tr>
+        <tr><td style="padding: 4px 12px 4px 0; color: #666;">Téléphone</td><td style="padding: 4px 0;">${ctx.borrower.telephone}</td></tr>
+      </table>
+      <p>Contacte-le pour convenir d'un point de rendez-vous. Merci de faire vivre le partage !</p>
+      <p style="color: #666; font-size: 13px; margin-top: 24px;">
+        Message automatique de la bibliothèque du Club Entrepreneur (Pôle Léonard de Vinci).
+      </p>
+    </div>`;
+  return { subject, htmlContent };
+}
+
+export async function sendBorrowNotifications(ctx: BorrowContext): Promise<ReminderResult> {
+  const config = getBrevoConfig();
+  if (!config) {
+    console.warn("[NOTIF] BREVO_API_KEY ou BREVO_SENDER_EMAIL manquant — envoi désactivé.");
+    return { sent: 0, failed: 0, skipped: 2 };
+  }
+
+  const result: ReminderResult = { sent: 0, failed: 0, skipped: 0 };
+
+  const recipients: { to: { email: string; name: string }; subject: string; htmlContent: string }[] = [];
+  if (ctx.borrower.email) {
+    const { subject, htmlContent } = buildBorrowerEmail(ctx);
+    recipients.push({ to: { email: ctx.borrower.email, name: ctx.borrower.name }, subject, htmlContent });
+  } else {
+    result.skipped += 1;
+  }
+  if (ctx.owner.email) {
+    const { subject, htmlContent } = buildOwnerEmail(ctx);
+    recipients.push({ to: { email: ctx.owner.email, name: ctx.owner.name }, subject, htmlContent });
+  } else {
+    result.skipped += 1;
+  }
+
+  for (const r of recipients) {
+    const ok = await sendEmail(r.to, r.subject, r.htmlContent, config.apiKey, config.sender);
+    if (ok) result.sent += 1;
+    else result.failed += 1;
+  }
+
+  return result;
+}
+
 export async function sendMonthlyRecaps(): Promise<ReminderResult> {
   const config = getBrevoConfig();
   if (!config) {
