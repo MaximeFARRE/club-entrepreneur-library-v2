@@ -11,7 +11,7 @@ export default async function AppLayout({
   const isAdmin = role === "admin";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <nav className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-6">
@@ -74,7 +74,19 @@ export default async function AppLayout({
         </div>
       </nav>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-8 flex-grow w-full">{children}</main>
+
+      <footer className="border-t border-gray-200 bg-white mt-auto w-full">
+        <div className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-gray-400 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© {new Date().getFullYear()} Club Entrepreneur. Tous droits réservés.</p>
+          <Link
+            href="/credits"
+            className="hover:text-blue-600 transition-colors font-medium"
+          >
+            Origine & Crédits
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -198,3 +198,16 @@ Role stored in `profiles.role`. Checked server-side in Server Actions and Server
 
 **Access**: all authenticated users.
 
+
+---
+
+## 12. Origine & Crédits (`/credits`)
+
+**Purpose**: Present the history and creators of the project.
+
+**Features:**
+- A detailed timeline outlining the evolution of the application from the V1 prototype (Python/Streamlit) to the current version.
+- Contributor profiles (such as the Lead Developer, Maxime FARRE) highlighting their specific roles and contributions.
+- Clear details regarding the supervising Mandate and the Club.
+
+**Access**: all authenticated users via a discreet footer link.
