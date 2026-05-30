@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { isbnLookupAction, addBookAction } from "./actions";
 import Link from "next/link";
+import { CATEGORIES_PREDEFINIES } from "@/lib/constants";
 
 export default function AjouterForm() {
   const [isbn, setIsbn] = useState("");
@@ -32,6 +33,20 @@ export default function AjouterForm() {
     });
   }
 
+  const selectedCategories = fields.categorie
+    ? fields.categorie.split(", ").filter(Boolean)
+    : [];
+
+  const toggleCategory = (cat: string) => {
+    let nextCategories;
+    if (selectedCategories.includes(cat)) {
+      nextCategories = selectedCategories.filter((c) => c !== cat);
+    } else {
+      nextCategories = [...selectedCategories, cat];
+    }
+    setFields((f) => ({ ...f, categorie: nextCategories.join(", ") }));
+  };
+
   return (
     <form action={addBookAction} className="space-y-5">
       <div className="flex gap-2">
@@ -60,13 +75,29 @@ export default function AjouterForm() {
       <Field label="Titre *" name="titre" value={fields.titre} onChange={(v) => setFields((f) => ({ ...f, titre: v }))} required />
       <Field label="Auteur *" name="auteur" value={fields.auteur} onChange={(v) => setFields((f) => ({ ...f, auteur: v }))} required />
 
-      <Field
-        label="Catégorie"
-        name="categorie"
-        value={fields.categorie}
-        onChange={(v) => setFields((f) => ({ ...f, categorie: v }))}
-        placeholder="Ex: Business, Développement personnel…"
-      />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">Catégories</label>
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES_PREDEFINIES.map((cat) => {
+            const isSelected = selectedCategories.includes(cat);
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => toggleCategory(cat)}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-all duration-200 ${
+                  isSelected
+                    ? "bg-blue-600 border-blue-600 text-white shadow-sm hover:bg-blue-700"
+                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+        <input type="hidden" name="categorie" value={fields.categorie} />
+      </div>
 
 
       <Field
