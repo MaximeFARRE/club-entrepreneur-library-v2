@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getOverdueLoans } from "@/services/emprunt.service";
+import { getOverdueLoansForCron } from "@/services/emprunt.service";
 import { sendOverdueReminders } from "@/services/notification.service";
 
 export async function GET(request: Request) {
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const retardataires = await getOverdueLoans();
+  const retardataires = await getOverdueLoansForCron();
   const result = await sendOverdueReminders(retardataires);
 
   console.log(
