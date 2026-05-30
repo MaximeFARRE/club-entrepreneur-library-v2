@@ -2,7 +2,7 @@
 
 > The official, premium library management system built by and for the members of the Club Entrepreneur student association at Pôle Léonard de Vinci.
 
-[![Next.js 15](https://img.shields.io/badge/Next.js-15.3.2-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15.3.9-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
 [![TypeScript 5](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 [![Vitest](https://img.shields.io/badge/Vitest-Unit%20Testing-76E1FE?style=for-the-badge&logo=vitest)](https://vitest.dev/)
@@ -59,9 +59,10 @@ sequenceDiagram
     participant RepoH as HistoriqueRepository
     participant DB as Supabase (PostgreSQL)
 
-    User->>UI: Selects book & inputs name/email
+    User->>UI: Selects book & inputs telephone number
     UI->>Act: Submits form data
-    Act->>Svc: processBorrow(livreId, borrower, email)
+    Note over Act: Resolves borrowerName and email from session profile
+    Act->>Svc: processBorrow(livreId, borrower, email, telephone, comment)
     Svc->>RepoL: getLivre(livreId)
     RepoL->>DB: Query book record
     DB-->>RepoL: Book record (Disponible)
@@ -154,9 +155,9 @@ The application is structured into a strict **3-tier layout** separating views, 
 ## Database Security (Row Level Security)
 
 RLS is strictly enforced at the database level:
-- **`profiles`**: All logged-in users can view all profiles (to see book owners). Users can only update their own profile name (`id = auth.uid()`).
-- **`livres`**: Read is public to authenticated users. Book insertion is open to all members (to share books). Update and delete are restricted to administrators.
-- **`emprunts`**: Read is public to authenticated users. Insertion is open to all users (anyone can record a borrow). Updates and deletions are restricted to administrators.
+- **`profiles`**: All logged-in users can view all profiles (to see book owners). Users can only update their own profile name (`id = auth.uid()`), and new profiles can be created during self-registration with member privileges.
+- **`livres`**: Read is public to authenticated users. Book insertion is open to all members (to share books). Update is open to all authenticated users (needed for borrow status updates), and deletion is permitted for administrators or the book's owner.
+- **`emprunts`**: Read is public to authenticated users. Insertion is open to all users. Update is allowed for administrators, the borrower, or the book's owner.
 
 ---
 
@@ -180,6 +181,9 @@ Provide the appropriate keys from your Supabase dashboard:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-secret-key
+BREVO_API_KEY=xkeysib-your-brevo-api-key
+BREVO_SENDER_EMAIL=bibliotheque@club-entrepreneur.example
+BREVO_SENDER_NAME=Club Entrepreneur
 CRON_SECRET=your-random-cron-secret
 ```
 
