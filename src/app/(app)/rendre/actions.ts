@@ -1,9 +1,15 @@
 "use server";
 
 import { processReturn } from "@/services/emprunt.service";
+import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export async function returnBookAction(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/login");
+  }
+
   const livreId = Number(formData.get("livre_id"));
   const commentaire = (formData.get("commentaire") as string)?.trim();
 
