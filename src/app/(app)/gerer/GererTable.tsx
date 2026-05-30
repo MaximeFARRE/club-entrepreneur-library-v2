@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Livre, Emprunt } from "@/types";
 import { updateBookAction, archiveBookAction, deleteBookAction } from "./actions";
+import { CATEGORIES_PREDEFINIES } from "@/lib/constants";
 
 type LivreAvecEmprunt = Livre & { empruntActif: Emprunt | null };
 
@@ -151,6 +152,22 @@ function EditForm({
   livre: LivreAvecEmprunt;
   onCancel: () => void;
 }) {
+  const [categories, setCategories] = useState<string>(livre.categorie ?? "");
+
+  const selectedCategories = categories
+    ? categories.split(", ").filter(Boolean)
+    : [];
+
+  const toggleCategory = (cat: string) => {
+    let nextCategories;
+    if (selectedCategories.includes(cat)) {
+      nextCategories = selectedCategories.filter((c) => c !== cat);
+    } else {
+      nextCategories = [...selectedCategories, cat];
+    }
+    setCategories(nextCategories.join(", "));
+  };
+
   return (
     <form action={updateBookAction} className="space-y-4">
       <input type="hidden" name="id" value={livre.id} />
@@ -158,7 +175,31 @@ function EditForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Titre" name="titre" defaultValue={livre.titre} required />
         <Field label="Auteur" name="auteur" defaultValue={livre.auteur} required />
-        <Field label="Catégorie" name="categorie" defaultValue={livre.categorie ?? ""} />
+        
+        <div className="sm:col-span-2 space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Catégories</label>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES_PREDEFINIES.map((cat) => {
+              const isSelected = selectedCategories.includes(cat);
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => toggleCategory(cat)}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-all duration-200 ${
+                    isSelected
+                      ? "bg-blue-600 border-blue-600 text-white shadow-sm hover:bg-blue-700"
+                      : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+          <input type="hidden" name="categorie" value={categories} />
+        </div>
+
         <Field label="Propriétaire" name="proprietaire" defaultValue={livre.proprietaire} required />
         <Field label="Email propriétaire" name="proprietaire_email" type="email" defaultValue={livre.proprietaire_email} required />
         <Field label="URL couverture" name="couverture" defaultValue={livre.couverture ?? ""} />
