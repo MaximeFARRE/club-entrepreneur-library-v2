@@ -9,6 +9,7 @@ export async function processBorrow(
   livreId: number,
   emprunteur: string,
   emprunteurEmail: string,
+  emprunteurTelephone: string,
   commentaire?: string
 ): Promise<void> {
   const livre = await livreRepo.getLivre(livreId);
@@ -26,6 +27,7 @@ export async function processBorrow(
     id_livre: livreId,
     emprunteur,
     emprunteur_email: emprunteurEmail,
+    emprunteur_telephone: emprunteurTelephone,
     date_emprunt: dateEmprunt.toISOString(),
     date_retour_prevue: dateRetourPrevue.toISOString(),
     commentaire: commentaire ?? "",
