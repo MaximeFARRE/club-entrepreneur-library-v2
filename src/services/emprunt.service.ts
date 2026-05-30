@@ -1,5 +1,6 @@
 import * as livreRepo from "@/repositories/livre.repository";
 import * as historiqueRepo from "@/repositories/historique.repository";
+import { sendBorrowNotifications } from "@/services/notification.service";
 import type { Emprunt, EmpruntAvecLivre, LoanStatus } from "@/types";
 
 const LOAN_DURATION_DAYS = 30;
@@ -32,6 +33,19 @@ export async function processBorrow(
     date_retour_prevue: dateRetourPrevue.toISOString(),
     commentaire: commentaire ?? "",
   });
+
+  // L'échec d'envoi ne doit pas faire échouer l'emprunt.
+  try {
+    await sendBorrowNotifications({
+      livreTitre: livre.titre,
+      livreAuteur: livre.auteur,
+      dateRetourPrevue: dateRetourPrevue.toISOString(),
+      owner: { name: livre.proprietaire, email: livre.proprietaire_email },
+      borrower: { name: emprunteur, email: emprunteurEmail, telephone: emprunteurTelephone },
+    });
+  } catch (err) {
+    console.error("Envoi des emails d'emprunt échoué:", err);
+  }
 }
 
 export async function processReturn(
