@@ -32,9 +32,9 @@ These are blockers for everything else.
 - [x] **ISBN auto-fill**: Google Books API integration on the add-book page (now captures and binds categories too)
 - [x] **Historique** (`/historique`): full borrow history table with 🟢/🟠/🔴 color-coded status
 - [x] **Gérer les livres** (`/gerer`): admin page — edit, archive, delete books; show active borrow status per book
-- [-] **Notifications**: Resend email integration (deliberately paused/put aside for now)
+- [x] **Notifications**: Brevo email integration (borrow handoff notifications, overdue reminders, and monthly recap)
 - [x] **Dashboard — overdue list**: display late loans sorted by days overdue
-- [x] **Dashboard — "Relancer les retardataires"**: admin button to trigger overdue reminders (currently logs to server console as emails are paused)
+- [x] **Dashboard — "Relancer les retardataires"**: admin button to trigger overdue reminders (sends actual emails via Brevo)
 - [x] **User Account Creation**: Sign up page (`/signup`) with display name registration
 - [x] **Mon Espace**: Personal user dashboard (`/profil`) for tracking borrowed books, shared books (and who holds them), borrow history, stats, and updating name
 
@@ -42,7 +42,7 @@ These are blockers for everything else.
 
 ## Phase 4 — Production Polish
 
-- [x] **Vercel Cron**: daily overdue reminder triggers via `/api/notifications` (logs late loans since email is paused)
+- [x] **Vercel Cron**: daily overdue reminder triggers via `/api/notifications` and monthly recap triggers via `/api/notifications/monthly` (sends actual emails via Brevo)
 - [x] **Vercel deployment**: connect GitHub repo, set env vars, confirm auto-deploy
 - [x] **RLS audit**: verify Supabase Row Level Security policies are correct
 - [x] **Error handling**: user-facing error messages for failed actions (form validation, API errors)
