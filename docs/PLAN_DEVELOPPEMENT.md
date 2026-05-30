@@ -1,6 +1,6 @@
 # Plan de Développement — Club Entrepreneur Library v2
 
-Stack : **Next.js 15 (App Router) · TypeScript · Supabase · Vercel · Resend**
+Stack : **Next.js 15 (App Router) · TypeScript · Supabase · Vercel · Brevo**
 
 ---
 
@@ -32,12 +32,11 @@ Stack : **Next.js 15 (App Router) · TypeScript · Supabase · Vercel · Resend*
 ### 0.2 Dépendances
 Installer :
 ```bash
-npm install @supabase/supabase-js @supabase/ssr resend
+npm install @supabase/supabase-js @supabase/ssr
 npm install -D supabase
 ```
 - `@supabase/supabase-js` — client Supabase
 - `@supabase/ssr` — helpers pour App Router (cookies, middleware)
-- `resend` — envoi d'emails
 - `supabase` (CLI dev) — génération des types TypeScript
 
 Commit : `chore: add supabase, ssr helpers and resend dependencies`
@@ -59,7 +58,9 @@ Commit : `chore: add supabase, ssr helpers and resend dependencies`
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
   - `SUPABASE_SERVICE_ROLE_KEY`
-  - `RESEND_API_KEY`
+  - `BREVO_API_KEY`
+  - `BREVO_SENDER_EMAIL`
+  - `BREVO_SENDER_NAME`
   - `CRON_SECRET`
 - Commit : `chore: add env example and configure gitignore`
 
@@ -200,14 +201,12 @@ Commit : `chore: add supabase, ssr helpers and resend dependencies`
 
 ### 3.3 Service notification
 - Créer `src/services/notification.service.ts`
-- Utilise le SDK Resend
+- Utilise l'API HTTP de Brevo pour l'envoi de mails
 - Fonctions :
-  - `sendBorrowEmailToBorrower(...)` — confirmation emprunt → emprunteur
-  - `sendBorrowEmailToOwner(...)` — notification emprunt → propriétaire
-  - `sendReturnEmailToBorrower(...)` — confirmation retour → emprunteur
-  - `sendReturnEmailToOwner(...)` — notification retour → propriétaire
-  - `sendOverdueReminder(...)` — relance retardataire → emprunteur
-- Chaque fonction est indépendante — une erreur ne bloque pas les autres
+  - `sendBorrowNotifications(...)` — confirmations d'emprunt → emprunteur + propriétaire
+  - `sendOverdueReminders(...)` — relances retardataires → emprunteurs
+  - `sendMonthlyRecaps()` — récaps mensuels → propriétaires de livres
+- Chaque envoi est sécurisé — une erreur n'interrompt pas les processus d'emprunt ou de retour
 - Commit : `feat: add email notification service using resend`
 
 ### 3.4 Page Emprunter
@@ -294,13 +293,16 @@ Commit : `chore: add supabase, ssr helpers and resend dependencies`
 ## Phase 6 — Finalisation Production
 
 ### 6.1 Cron pour les relances automatiques
-- Créer `app/api/notifications/route.ts`
-- Vérifie le header `Authorization: Bearer {CRON_SECRET}`
-- Appelle la même logique que le bouton "Relancer" du dashboard
+- Créer `app/api/notifications/route.ts` et `app/api/notifications/monthly/route.ts`
+- Vérifient le header `Authorization: Bearer {CRON_SECRET}` ou la signature de la requête
+- Appellent les méthodes du service `notification.service.ts`
 - Configurer dans `vercel.json` :
   ```json
   {
-    "crons": [{ "path": "/api/notifications", "schedule": "0 8 * * *" }]
+    "crons": [
+      { "path": "/api/notifications", "schedule": "0 8 * * *" },
+      { "path": "/api/notifications/monthly", "schedule": "0 9 1 * *" }
+    ]
   }
   ```
 - Commit : `feat: add daily overdue notification cron endpoint`
@@ -389,7 +391,7 @@ chore: finalize production configuration
 - [x] `npx tsc --noEmit` passe sans erreur
 - [x] Tous les tests passent
 - [x] RLS vérifié pour les rôles member et admin
-- [ ] Variables d'environnement configurées dans Vercel
-- [ ] Cron actif et testé
-- [ ] Test complet du flux emprunt → retour → email en production
-- [ ] Interface testée sur mobile
+- [x] Variables d'environnement configurées dans Vercel
+- [x] Cron actif et testé
+- [x] Test complet du flux emprunt → retour → email en production
+- [x] Interface testée sur mobile
