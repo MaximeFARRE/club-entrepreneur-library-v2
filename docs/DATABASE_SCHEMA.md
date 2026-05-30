@@ -37,6 +37,7 @@ CREATE TABLE emprunts (
   id_livre            BIGINT NOT NULL REFERENCES livres(id) ON DELETE CASCADE,
   emprunteur          TEXT NOT NULL,
   emprunteur_email    TEXT NOT NULL,
+  emprunteur_telephone TEXT NOT NULL DEFAULT '',
   date_emprunt        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   date_retour_prevue  TIMESTAMPTZ NOT NULL,  -- date_emprunt + 30 days
   date_retour         TIMESTAMPTZ,           -- NULL = loan still active
@@ -57,10 +58,10 @@ CREATE TABLE profiles (
 );
 
 -- Automatically create a profile on user signup
-CREATE OR REPLACE FUNCTION handle_new_user()
+CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, role, nom)
+  INSERT INTO public.profiles (id, role, nom)
   VALUES (
     NEW.id,
     'member',
@@ -68,7 +69,7 @@ BEGIN
   );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
@@ -80,8 +81,8 @@ CREATE TRIGGER on_auth_user_created
 ## Indexes
 
 ```sql
--- Fast lookup of active loans for a given book
-CREATE INDEX idx_emprunts_id_livre_active
+-- Enforce unique active loan (at most one) per book
+CREATE UNIQUE INDEX idx_emprunts_id_livre_active
   ON emprunts(id_livre)
   WHERE date_retour IS NULL;
 
@@ -95,7 +96,7 @@ CREATE INDEX idx_livres_titre ON livres USING gin(to_tsvector('french', titre));
 ## Row Level Security (RLS)
 
 ```sql
--- livres: all authenticated users can read; only admins can write
+-- livres: all authenticated users can read and insert (to share books); anyone can update (to borrow/return); admins or owners can delete
 ALTER TABLE livres ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "livres_select" ON livres
@@ -107,11 +108,18 @@ CREATE POLICY "livres_insert" ON livres
 
 CREATE POLICY "livres_update" ON livres
   FOR UPDATE TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY "livres_delete" ON livres
+  FOR DELETE TO authenticated
   USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    OR
+    proprietaire_email = (auth.jwt() ->> 'email')
   );
 
--- emprunts: all authenticated users can read and insert; only admins can update/delete
+-- emprunts: all authenticated users can read and insert; update is permitted for admins, the borrower, or the book owner
 ALTER TABLE emprunts ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "emprunts_select" ON emprunts
@@ -123,8 +131,26 @@ CREATE POLICY "emprunts_insert" ON emprunts
 CREATE POLICY "emprunts_update" ON emprunts
   FOR UPDATE TO authenticated
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+    OR
+    emprunteur_email = (auth.jwt() ->> 'email')
+    OR
+    EXISTS (SELECT 1 FROM public.livres WHERE id = id_livre AND proprietaire_email = (auth.jwt() ->> 'email'))
   );
+
+-- profiles: all authenticated users can read; users can update their own profile name; self-registration insert allowed for member role
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "profiles_select" ON profiles
+  FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "profiles_update_own" ON profiles
+  FOR UPDATE TO authenticated
+  USING (id = auth.uid());
+
+CREATE POLICY "profiles_insert_own" ON profiles
+  FOR INSERT TO authenticated
+  WITH CHECK (id = auth.uid() AND role = 'member');
 ```
 
 ---

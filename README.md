@@ -2,7 +2,7 @@
 
 > The official, premium library management system built by and for the members of the Club Entrepreneur student association at Pôle Léonard de Vinci.
 
-[![Next.js 15](https://img.shields.io/badge/Next.js-15.3.2-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15.3.9-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
 [![TypeScript 5](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 [![Vitest](https://img.shields.io/badge/Vitest-Unit%20Testing-76E1FE?style=for-the-badge&logo=vitest)](https://vitest.dev/)
@@ -29,17 +29,24 @@ Version 1 was a quick prototype built using Python and Streamlit. While it prove
 ## Key Features
 
 - **📚 Catalog & Real-Time Discovery**: Browse, search (full-text search on title/author), and filter books by availability (All / Available / Borrowed).
-- **🔍 Smart ISBN Lookup**: Add a book instantly by scanning or entering its ISBN. Automatically fetches and binds the title, authors, genres/categories, summary, and cover image from the **Google Books API**.
-- **👥 Member Account Creation**: Allows self-registration via `/signup`. The trigger automatically synchronizes newly created Auth users with the database `profiles` table.
+- **🔍 Smart ISBN Lookup & Auto-fill**: Add a book instantly by scanning or entering its ISBN. Automatically fetches and binds the title, authors, genres/categories, summary, and cover image from the **Google Books API**.
+  - **Controlled Tag Selector**: Categories are resolved and matched to pre-defined tags (e.g., Business, Product, Tech) to avoid catalog clutter.
+  - **Manual Adjustments**: Contributors can review and adjust any pre-filled field (including custom owner details or custom cover URLs) before saving.
+- **👥 Member Account Creation**: Allows self-registration via `/signup`. The database trigger automatically synchronizes newly created Auth users with the database `profiles` table.
 - **👤 Personal Space ("Mon Espace")**: Each member gets a dedicated space `/profil` containing:
-  - Personal reading metrics.
+  - Personal reading metrics and stats cards.
   - Active borrows tracking (with return due dates and color-coded status badges).
   - Borrowing history ledger.
   - Shared books manager showing which of their books are currently lent out and **who currently holds them** (name and email).
+  - Book deletion action: lets book owners remove their own contributed books and cascade-delete their borrow history.
   - Inline settings to edit their display name.
-- **🛡️ Secure Transactions**: Invariants enforced at the service boundary to prevent double-booking or illegal return actions.
-- **📊 Administration Dashboard**: Key metrics (total books, available, borrowed, overdue count) and a late-returns tracking table with a bulk-nudge trigger (logs late notifications).
+- **🛡️ Secure Transactions**: Invariants enforced at the service boundary and index constraints in the database to prevent double-booking or illegal actions.
+- **📊 Administration Dashboard**: Key metrics (total books, available, borrowed, overdue count) and a late-returns tracking table.
 - **🔒 Role-Based Access Control**: Strict division between `member` and `admin` roles, verified on the server side in Server Actions and in the database through PostgreSQL RLS policies.
+- **✉️ Transactional Notifications (Brevo)**: The system keeps users connected and coordinates book logistics using Brevo's transactional API:
+  - **Borrow Handoff coordination**: When a borrow occurs, an email is sent to the borrower (with the owner's email) and the owner (with the borrower's name, email, and phone number) to organize physical book delivery.
+  - **Overdue Reminders**: Automatic daily Vercel Cron checks active loans and sends a reminder email to late borrowers, which can also be manually triggered by admins from the dashboard.
+  - **Monthly Recap**: Monthly Vercel Cron aggregates shared book statistics and sends a thank-you summary to book owners to encourage active library participation.
 
 ---
 
@@ -59,9 +66,10 @@ sequenceDiagram
     participant RepoH as HistoriqueRepository
     participant DB as Supabase (PostgreSQL)
 
-    User->>UI: Selects book & inputs name/email
+    User->>UI: Selects book & inputs telephone number
     UI->>Act: Submits form data
-    Act->>Svc: processBorrow(livreId, borrower, email)
+    Note over Act: Resolves borrowerName and email from session profile
+    Act->>Svc: processBorrow(livreId, borrower, email, telephone, comment)
     Svc->>RepoL: getLivre(livreId)
     RepoL->>DB: Query book record
     DB-->>RepoL: Book record (Disponible)
@@ -154,9 +162,9 @@ The application is structured into a strict **3-tier layout** separating views, 
 ## Database Security (Row Level Security)
 
 RLS is strictly enforced at the database level:
-- **`profiles`**: All logged-in users can view all profiles (to see book owners). Users can only update their own profile name (`id = auth.uid()`).
-- **`livres`**: Read is public to authenticated users. Book insertion is open to all members (to share books). Update and delete are restricted to administrators.
-- **`emprunts`**: Read is public to authenticated users. Insertion is open to all users (anyone can record a borrow). Updates and deletions are restricted to administrators.
+- **`profiles`**: All logged-in users can view all profiles (to see book owners). Users can only update their own profile name (`id = auth.uid()`), and new profiles can be created during self-registration with member privileges.
+- **`livres`**: Read is public to authenticated users. Book insertion is open to all members (to share books). Update is open to all authenticated users (needed for borrow status updates), and deletion is permitted for administrators or the book's owner.
+- **`emprunts`**: Read is public to authenticated users. Insertion is open to all users. Update is allowed for administrators, the borrower, or the book's owner.
 
 ---
 
@@ -180,6 +188,9 @@ Provide the appropriate keys from your Supabase dashboard:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-secret-key
+BREVO_API_KEY=xkeysib-your-brevo-api-key
+BREVO_SENDER_EMAIL=bibliotheque@club-entrepreneur.example
+BREVO_SENDER_NAME=Club Entrepreneur
 CRON_SECRET=your-random-cron-secret
 ```
 

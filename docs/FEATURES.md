@@ -17,7 +17,7 @@ This document is the source of truth for implementation.
 
 **Additional elements:**
 - List of overdue loans: borrower name, book title, days overdue (sorted by most overdue first)
-- Button "Relancer les retardataires" (admin only): triggers overdue reminder emails to all overdue borrowers in one click
+- Button "Relancer les retardataires" (admin only): triggers active overdue reminder emails via Brevo to all overdue borrowers in one click
 
 **Access**: all authenticated users (read); "Relancer" button admin only.
 
@@ -66,16 +66,16 @@ This document is the source of truth for implementation.
 
 **Flow:**
 1. User selects a book (only available books shown).
-2. User enters borrower name and email.
+2. User enters borrower's phone number (name and email are resolved automatically from the authenticated user's session).
 3. User optionally adds a comment.
 4. On submit:
    - Validate book is still available (race condition guard).
    - Set `disponibilite = 'Indisponible'` and `emprunte_par = borrowerName` on `livres`.
-   - Insert a row in `emprunts` with `date_retour_prevue = NOW() + 30 days`.
-   - Send confirmation email to **borrower** and **owner** (failures are silent — do not block the borrow).
+   - Insert a row in `emprunts` with `emprunteur_telephone` and `date_retour_prevue = NOW() + 30 days`.
+   - Send handoff email notifications via Brevo to the **borrower** and **owner** (failures are silent — do not block the borrow).
 
-**Email to borrower**: confirms loan, gives due date, gives owner's contact info.
-**Email to owner**: notifies their book was borrowed, gives borrower's contact info and due date.
+**Email to borrower**: confirms loan, gives due date, gives owner's contact info (name and email).
+**Email to owner**: notifies their book was borrowed, gives borrower's contact info (name, email, and telephone) and due date.
 
 **Access**: all authenticated users.
 
@@ -91,10 +91,6 @@ This document is the source of truth for implementation.
 3. On submit:
    - Set `disponibilite = 'Disponible'` and `emprunte_par = NULL` on `livres`.
    - Close the active loan: set `date_retour = NOW()` and save comment on `emprunts`.
-   - Send confirmation email to **borrower** and **owner** (failures are silent).
-
-**Email to owner**: confirms return, gives actual return date, flags if returned late.
-**Email to borrower**: confirms return registered, thanks them.
 
 **Access**: all authenticated users.
 
@@ -109,15 +105,17 @@ This document is the source of truth for implementation.
 **Columns**: book title, borrower, borrow date, expected return date, actual return date, status indicator.
 
 **Status color coding** (applied to each row):
-- 🟢 Green: loan closed (returned), or active with more than 3 days remaining
-- 🟠 Orange: active loan with 3 days or fewer remaining
-- 🔴 Red: active loan past the due date (overdue)
+- 🟢 Green: loan closed (returned on time), or active with more than 7 days remaining
+- 🟠 Orange: active loan with 7 days or fewer remaining
+- 🔴 Red: active loan past the due date (overdue), or returned late
 
 **Logic** (`determineStatusColor`):
 ```
-if date_retour is not null → GREEN (returned)
+if date_retour is not null:
+  if date_retour <= date_retour_prevue → GREEN
+  else → RED
 if date_retour_prevue < NOW() → RED (overdue)
-if (date_retour_prevue - NOW()) <= 3 days → ORANGE (due soon)
+if (date_retour_prevue - NOW()) <= 7 days → ORANGE (due soon)
 else → GREEN
 ```
 
@@ -160,11 +158,13 @@ Role stored in `profiles.role`. Checked server-side in Server Actions and Server
 
 ## 9. Notifications (Overdue Reminders)
 
-**Trigger**: daily Vercel Cron job → `POST /api/notifications` (currently logs overdue loans; email dispatch is paused).
+**Trigger**: daily Vercel Cron job → `GET /api/notifications` (sends actual overdue email reminders via Brevo using service-role access).
 
-**Logic**: fetch all active loans where `date_retour_prevue < NOW()`. For each, log details (reminders are currently simulated).
+**Logic**: fetch all active loans where `date_retour_prevue < NOW()`. For each, send an email reminder to the borrower.
 
-**Manual trigger**: "Relancer les retardataires" button on the dashboard (admin only) — triggers simulated reminders in log.
+**Manual trigger**: "Relancer les retardataires" button on the dashboard (admin only) — triggers email reminders to late borrowers via Brevo.
+
+**Monthly Recap**: monthly Vercel Cron job → `GET /api/notifications/monthly` aggregates all active shared books by owner and sends a monthly recap email thanking members for their contributions.
 
 **Failures are silent**: email errors must never break the borrowing or return flow.
 
@@ -192,9 +192,10 @@ Role stored in `profiles.role`. Checked server-side in Server Actions and Server
 **Features:**
 - **Stats Card Grid**: displays active borrows count, total history borrows count, count of books owned by user currently lent to others, and total books owned.
 - **Mes emprunts en cours**: displays grid of currently borrowed books by the user, with title, author, cover, return due date, and relative delay color status (🟢/🟠/🔴).
-- **Mes livres partagés**: displays a list of books owned by the user. If a book is lent out, shows **who holds it** (borrower's name and email) and the return due date.
+- **Mes livres partagés**: displays a list of books owned by the user. If a book is lent out, shows **who holds it** (borrower's name and email) and the return due date. Also allows the book owner to delete their book (along with its borrow history).
 - **Mon Historique d'emprunts**: list of past completed borrowings.
 - **Modifier mes infos**: side form allowing users to update their full name.
+- **Supprimer un livre**: book owners can delete their own shared books (which deletes the history too), while admins can delete any book.
 
 **Access**: all authenticated users.
 

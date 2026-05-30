@@ -32,17 +32,21 @@ app/
 │   ├── login/page.tsx          # Login page (public)
 │   └── signup/page.tsx         # Signup page (public)
 ├── (app)/
-│   ├── layout.tsx              # Auth guard + nav
-│   ├── page.tsx                # Dashboard
+│   ├── layout.tsx              # Auth guard + nav + footer
+│   ├── page.tsx                # Dashboard + overdue list
 │   ├── catalogue/page.tsx      # Book catalog
+│   ├── catalogue/[id]/page.tsx # Book details & loan history page
 │   ├── ajouter/page.tsx        # Add book (ISBN + manual)
-│   ├── emprunter/page.tsx      # Record a borrow
+│   ├── emprunter/page.tsx      # Record a borrow (telephone number input)
 │   ├── rendre/page.tsx         # Record a return
 │   ├── historique/page.tsx     # Borrow history
-│   ├── profil/page.tsx         # Personal Space dashboard
+│   ├── profil/page.tsx         # Personal Space dashboard (with book delete action)
+│   ├── credits/page.tsx        # Project timeline & origins page
 │   └── gerer/page.tsx          # Admin — manage books
 └── api/
-    └── notifications/route.ts  # Cron webhook for overdue reminders (emails paused)
+    └── notifications/
+        ├── route.ts            # Cron webhook for overdue email reminders (Brevo)
+        └── monthly/route.ts    # Cron webhook for monthly contributions recap (Brevo)
 ```
 
 ### 2. Business Logic Layer — `src/services/`
@@ -52,14 +56,14 @@ Pure TypeScript functions. No Supabase client. No UI imports.
 - `livre.service.ts` — catalog operations, ISBN lookup orchestration
 - `emprunt.service.ts` — borrow/return processing, overdue detection, status color
 - `profile.service.ts` — user profile operations (name validations)
-- `notification.service.ts` — email composition and dispatch rules (emails currently paused)
+- `notification.service.ts` — email composition and dispatch rules (via Brevo API)
 - `isbn.service.ts` — Google Books API integration
 
 Business rules centralized here:
 - Loan period: **30 days**
 - Status color logic: green (returned or >7 days left), orange (≤7 days), red (overdue)
 - Overdue: `date_retour IS NULL AND date_retour_prevue < NOW()`
-- Emails sent on (paused): borrow (→ borrower + owner), return (→ borrower + owner), overdue reminder (→ borrower)
+- Emails sent on: borrow handoff (→ borrower + owner), overdue reminder (→ borrower), and monthly recap (→ contributors)
 
 ### 3. Data Access Layer — `src/repositories/`
 
@@ -100,18 +104,19 @@ Handled entirely by **Supabase Auth**.
 ```
 User submits form (Client Component)
         ↓
-Server Action: borrowBook(formData)  [app/emprunter/actions.ts]
+Server Action: borrowBookAction(formData)  [app/emprunter/actions.ts]
+  → resolves borrowerName and borrowerEmail from current session profile
         ↓
-empruntService.processBorrow(livreId, borrowerName, borrowerEmail)  [src/services/emprunt.service.ts]
+empruntService.processBorrow(livreId, borrowerName, borrowerEmail, telephone, comment?)  [src/services/emprunt.service.ts]
   → validates: book exists, book is available
   → calculates: dueDate = today + 30 days
         ↓
 livreRepository.updateAvailability(livreId, 'Indisponible', borrowerName)  [src/repositories/livre.repository.ts]
-historiqueRepository.addBorrow(...)                                          [src/repositories/historique.repository.ts]
+historiqueRepository.addEmprunt(...)                                         [src/repositories/historique.repository.ts]
         ↓
-notificationService.sendBorrowEmails(...)  [src/services/notification.service.ts]
-  → sends email to borrower
-  → sends email to owner
+notificationService.sendBorrowNotifications(...)  [src/services/notification.service.ts]
+  → sends email to borrower (with owner's email)
+  → sends email to owner (with borrower's email & telephone)
         ↓
 redirect('/catalogue')
 ```
@@ -120,7 +125,7 @@ redirect('/catalogue')
 
 ## Email Provider
 
-[Resend](https://resend.com/) — simple REST API, no SMTP configuration needed. Configured via `RESEND_API_KEY` env var.
+[Brevo](https://www.brevo.com/) — transactional email API. Configured via `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, and `BREVO_SENDER_NAME` env vars. Sent via HTTP POST requests to `https://api.brevo.com/v3/smtp/email`.
 
 ---
 
@@ -129,4 +134,4 @@ redirect('/catalogue')
 - **Vercel**: connected to GitHub `main` branch. Push → automatic deploy.
 - **Environment variables**: set in Vercel dashboard (not committed to git).
 - **Supabase**: managed PostgreSQL. Row Level Security (RLS) enabled on all tables.
-- **Cron job**: Vercel Cron triggers `/api/notifications` daily to send overdue reminders.
+- **Cron jobs**: Vercel Cron triggers `/api/notifications` daily to send overdue reminders, and `/api/notifications/monthly` monthly to trigger contributions recaps.
