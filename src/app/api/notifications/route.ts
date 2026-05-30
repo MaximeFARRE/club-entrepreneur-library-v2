@@ -25,16 +25,3 @@ export async function GET(request: Request) {
     })),
   });
 }
-
-// Route POST pour le bouton "Relancer" du dashboard
-export async function POST(request: Request) {
-  const auth = request.headers.get("authorization");
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const retardataires = await getOverdueLoans();
-  console.log(`[RELANCE MANUELLE] ${retardataires.length} emprunt(s) en retard`);
-
-  return NextResponse.json({ ok: true, sent: retardataires.length });
-}
