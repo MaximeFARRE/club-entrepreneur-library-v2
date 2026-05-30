@@ -1,15 +1,21 @@
 "use server";
 
 import { processBorrow } from "@/services/emprunt.service";
+import { getCurrentUser, getUserProfile } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export async function borrowBookAction(formData: FormData) {
+  const [user, profile] = await Promise.all([getCurrentUser(), getUserProfile()]);
+  if (!user) {
+    redirect("/login");
+  }
+
   const livreId = Number(formData.get("livre_id"));
-  const emprunteur = (formData.get("emprunteur") as string)?.trim();
-  const emprunteurEmail = (formData.get("emprunteur_email") as string)?.trim();
+  const emprunteur = profile?.nom || user.email || "Membre";
+  const emprunteurEmail = user.email || "";
   const commentaire = (formData.get("commentaire") as string)?.trim();
 
-  if (!livreId || !emprunteur || !emprunteurEmail) {
+  if (!livreId) {
     redirect("/emprunter?error=missing_fields");
   }
 
