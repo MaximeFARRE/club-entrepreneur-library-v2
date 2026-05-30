@@ -1,4 +1,5 @@
 import type { EmpruntAvecLivre } from "@/types";
+import { getActiveContributions } from "@/repositories/livre.repository";
 
 const BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 
@@ -6,6 +7,19 @@ export interface ReminderResult {
   sent: number;
   failed: number;
   skipped: number;
+}
+
+interface BrevoConfig {
+  apiKey: string;
+  sender: { email: string; name: string };
+}
+
+function getBrevoConfig(): BrevoConfig | null {
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL;
+  const senderName = process.env.BREVO_SENDER_NAME ?? "Club Entrepreneur";
+  if (!apiKey || !senderEmail) return null;
+  return { apiKey, sender: { email: senderEmail, name: senderName } };
 }
 
 function formatDate(iso: string): string {
@@ -78,16 +92,12 @@ async function sendEmail(
 export async function sendOverdueReminders(
   loans: EmpruntAvecLivre[]
 ): Promise<ReminderResult> {
-  const apiKey = process.env.BREVO_API_KEY;
-  const senderEmail = process.env.BREVO_SENDER_EMAIL;
-  const senderName = process.env.BREVO_SENDER_NAME ?? "Club Entrepreneur";
-
-  if (!apiKey || !senderEmail) {
+  const config = getBrevoConfig();
+  if (!config) {
     console.warn("[NOTIF] BREVO_API_KEY ou BREVO_SENDER_EMAIL manquant — envoi désactivé.");
     return { sent: 0, failed: 0, skipped: loans.length };
   }
 
-  const sender = { email: senderEmail, name: senderName };
   const result: ReminderResult = { sent: 0, failed: 0, skipped: 0 };
 
   for (const loan of loans) {
@@ -100,9 +110,56 @@ export async function sendOverdueReminders(
       { email: loan.emprunteur_email, name: loan.emprunteur },
       subject,
       htmlContent,
-      apiKey,
-      sender
+      config.apiKey,
+      config.sender
     );
+    if (ok) result.sent += 1;
+    else result.failed += 1;
+  }
+
+  return result;
+}
+
+function buildMonthlyRecapEmail(name: string, count: number): { subject: string; htmlContent: string } {
+  const subject = "Merci pour ta contribution à la bibliothèque du Club 📚";
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
+      <h2 style="color: #1a1a1a;">Merci ${name} !</h2>
+      <p>Grâce à toi, la bibliothèque du Club Entrepreneur s'enrichit. Tu as partagé
+      <strong>${count} livre${count > 1 ? "s" : ""}</strong> avec les autres membres — bravo et merci pour ta générosité !</p>
+      <p>Et toi, tu as déjà trouvé ta prochaine lecture ? Des dizaines d'ouvrages t'attendent :
+      passe sur l'app pour <strong>emprunter un livre</strong> et continuer à faire vivre le partage.</p>
+      <p style="color: #666; font-size: 13px; margin-top: 24px;">
+        Ceci est un message automatique de la bibliothèque du Club Entrepreneur (Pôle Léonard de Vinci).
+      </p>
+    </div>`;
+
+  return { subject, htmlContent };
+}
+
+export async function sendMonthlyRecaps(): Promise<ReminderResult> {
+  const config = getBrevoConfig();
+  if (!config) {
+    console.warn("[NOTIF] BREVO_API_KEY ou BREVO_SENDER_EMAIL manquant — envoi désactivé.");
+    return { sent: 0, failed: 0, skipped: 0 };
+  }
+
+  const contributions = await getActiveContributions();
+
+  // Agrégation par membre (clé = email), en gardant un nom d'affichage.
+  const byMember = new Map<string, { name: string; count: number }>();
+  for (const { proprietaire, proprietaire_email } of contributions) {
+    if (!proprietaire_email) continue;
+    const entry = byMember.get(proprietaire_email);
+    if (entry) entry.count += 1;
+    else byMember.set(proprietaire_email, { name: proprietaire || "membre", count: 1 });
+  }
+
+  const result: ReminderResult = { sent: 0, failed: 0, skipped: 0 };
+
+  for (const [email, { name, count }] of byMember) {
+    const { subject, htmlContent } = buildMonthlyRecapEmail(name, count);
+    const ok = await sendEmail({ email, name }, subject, htmlContent, config.apiKey, config.sender);
     if (ok) result.sent += 1;
     else result.failed += 1;
   }
