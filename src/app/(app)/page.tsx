@@ -4,6 +4,7 @@ import { getOverdueLoans, determineLoanStatus } from "@/services/emprunt.service
 import { getUserRole, getCurrentUser } from "@/lib/auth";
 import type { LoanStatus } from "@/types";
 import LandingPage from "./LandingPage";
+import { remindOverdueAction } from "./actions";
 
 const STATUS_EMOJI: Record<LoanStatus, string> = {
   green: "🟢",
@@ -25,12 +26,18 @@ function daysOverdue(dateRetourPrevue: string): number {
   );
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reminded?: string }>;
+}) {
   const user = await getCurrentUser();
 
   if (!user) {
     return <LandingPage />;
   }
+
+  const { reminded } = await searchParams;
 
   const [tous, disponibles, empruntes, retardataires, role] = await Promise.all([
     getAllLivresAvecArchives(),
@@ -52,6 +59,12 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900">Tableau de bord</h1>
+
+      {reminded !== undefined && (
+        <p className="rounded-md bg-green-50 px-4 py-3 text-sm text-green-700">
+          Relance effectuée — {reminded} emprunt(s) en retard recensé(s).
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {metrics.map(({ label, value, color }) => (
@@ -141,7 +154,7 @@ export default async function DashboardPage() {
 
 function OverdueReminderButton() {
   return (
-    <form action="/api/notifications/remind" method="POST">
+    <form action={remindOverdueAction}>
       <button
         type="submit"
         className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"

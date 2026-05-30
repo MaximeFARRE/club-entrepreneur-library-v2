@@ -162,7 +162,7 @@ export default async function ProfilPage({
                   return (
                     <div key={e.id} className="flex gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                       {e.livres.couverture ? (
-                        <Image src={e.livres.couverture} alt={e.livres.titre} width={56} height={80} className="h-20 w-14 object-cover rounded shadow-sm" />
+                        <Image src={e.livres.couverture} alt={e.livres.titre} width={56} height={80} unoptimized className="h-20 w-14 object-cover rounded shadow-sm" />
                       ) : (
                         <div className="h-20 w-14 rounded bg-gray-100 flex items-center justify-center text-xs text-gray-400 font-medium">
                           No Cover
