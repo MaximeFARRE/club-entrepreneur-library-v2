@@ -52,6 +52,19 @@ export default async function EmprunterPage({
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
+              Numéro de téléphone *
+            </label>
+            <input
+              name="telephone"
+              type="tel"
+              required
+              placeholder="Ex: 06 12 34 56 78"
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
               Commentaire (optionnel)
             </label>
             <textarea
