@@ -102,11 +102,11 @@ export default function LandingPage() {
           {/* Feature 3 */}
           <div className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300">
             <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl mb-6">
-              ✉️
+              📅
             </div>
-            <h3 className="font-bold text-lg text-slate-900 mb-2">Rappels de Retour</h3>
+            <h3 className="font-bold text-lg text-slate-900 mb-2">Suivi des Retours</h3>
             <p className="text-slate-500 text-sm leading-relaxed">
-              Recevez des notifications automatiques par email à l&apos;emprunt, au retour, et en cas de retard pour garantir le roulement des ouvrages.
+              Visualisez en un coup d&apos;œil les emprunts en cours, les dates de retour et les retards directement depuis votre tableau de bord.
             </p>
           </div>
         </div>
