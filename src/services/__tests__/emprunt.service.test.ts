@@ -260,6 +260,7 @@ describe("emprunt.service - getOverdueLoans", () => {
         id_livre: 101,
         emprunteur: "Alice",
         emprunteur_email: "alice@example.com",
+        emprunteur_telephone: "0612345678",
         date_emprunt: "2026-04-10T12:00:00.000Z",
         date_retour_prevue: "2026-05-10T12:00:00.000Z", // OVERDUE (10 days late)
         date_retour: null,
@@ -271,6 +272,7 @@ describe("emprunt.service - getOverdueLoans", () => {
         id_livre: 102,
         emprunteur: "Bob",
         emprunteur_email: "bob@example.com",
+        emprunteur_telephone: "0612345678",
         date_emprunt: "2026-04-15T12:00:00.000Z",
         date_retour_prevue: "2026-05-15T12:00:00.000Z", // OVERDUE (5 days late)
         date_retour: null,
@@ -282,6 +284,7 @@ describe("emprunt.service - getOverdueLoans", () => {
         id_livre: 103,
         emprunteur: "Charlie",
         emprunteur_email: "charlie@example.com",
+        emprunteur_telephone: "0612345678",
         date_emprunt: "2026-04-25T12:00:00.000Z",
         date_retour_prevue: "2026-05-25T12:00:00.000Z", // NOT OVERDUE (5 days left)
         date_retour: null,
