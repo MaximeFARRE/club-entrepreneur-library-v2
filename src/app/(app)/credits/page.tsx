@@ -60,7 +60,7 @@ export default function CreditsPage() {
                 </span>
               </div>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Conçue comme un prototype rapide sous **Python & Streamlit** et connectée à **Google Sheets**, cette première version a permis de valider le besoin d&apos;un catalogue partagé pour les livres de l&apos;association. Bien que fonctionnelle, elle présentait des limites de sécurité (pas d&apos;isolation utilisateur) et de performance.
+                Conçue sous le mandat de **Nicolas Cosmano** (Président), **Elias Rolier** (Vice-Président) et **Chloé Chaufour** (Secrétaire). Cette première version sous **Python & Streamlit** (stockage Google Sheets) a permis de tester le concept et de lancer les premiers partages de livres au sein de l&apos;association.
               </p>
               <div className="flex flex-wrap gap-2 text-xs text-gray-500 pt-1">
                 <span className="bg-gray-50 border border-gray-100 rounded px-2 py-0.5">Python</span>
@@ -79,14 +79,14 @@ export default function CreditsPage() {
                   Version 2 — Refonte Moderne & Stable
                 </h3>
                 <span className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md font-semibold">
-                  En cours (2026)
+                  2026
                 </span>
               </div>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Une réécriture complète en **Next.js 15**, **TypeScript** et **Supabase (PostgreSQL)**. Cette version apporte une séparation stricte des responsabilités (architecture 3 tiers), une sécurité renforcée grâce à la Row Level Security (RLS), des espaces utilisateurs personnalisés, un remplissage automatique des fiches via l&apos;API Google Books, ainsi qu&apos;une suite de tests unitaires avec Vitest.
+                Développée lors de la transition entre le mandat de **Nicolas Cosmano** et le mandat de **Nathan Moulin** (Président) et **Mistral Philippe**. Cette réécriture complète en **Next.js 15** et **Supabase** apporte une structure robuste, une sécurité par RLS, des tableaux de bord personnels et l&apos;autofill ISBN.
               </p>
               <div className="flex flex-wrap gap-2 text-xs text-indigo-600 pt-1 font-medium">
-                <span className="bg-indigo-50/50 border border-indigo-100 rounded px-2 py-0.5">Next.js 15 (App Router)</span>
+                <span className="bg-indigo-50/50 border border-indigo-100 rounded px-2 py-0.5">Next.js 15</span>
                 <span className="bg-indigo-50/50 border border-indigo-100 rounded px-2 py-0.5">Supabase Auth & DB</span>
                 <span className="bg-indigo-50/50 border border-indigo-100 rounded px-2 py-0.5">TypeScript</span>
                 <span className="bg-indigo-50/50 border border-indigo-100 rounded px-2 py-0.5">Vitest</span>
@@ -98,10 +98,10 @@ export default function CreditsPage() {
 
       {/* Contributeurs & Mandat */}
       <div className="grid md:grid-cols-3 gap-8">
-        {/* Mandat Card */}
+        {/* Mandats Card */}
         <section className="md:col-span-1 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <span>🛡️</span> Mandat & Cadre
+            <span>🛡️</span> Mandats & Cadre
           </h2>
           <div className="space-y-3.5 text-sm">
             <div>
@@ -114,8 +114,14 @@ export default function CreditsPage() {
               <p className="text-xs text-gray-500">Paris La Défense</p>
             </div>
             <div>
-              <p className="text-xs text-gray-400 font-medium uppercase">Mandat Supervisant</p>
-              <p className="font-semibold text-gray-800">Mandat 2025 - 2026</p>
+              <p className="text-xs text-gray-400 font-medium uppercase">Mandat 2025 (Initial)</p>
+              <p className="font-semibold text-gray-800">Nicolas Cosmano</p>
+              <p className="text-xs text-gray-500">Président</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 font-medium uppercase">Mandat 2026 (Transition)</p>
+              <p className="font-semibold text-gray-800">Nathan Moulin</p>
+              <p className="text-xs text-gray-500">Président</p>
             </div>
           </div>
         </section>
@@ -136,17 +142,39 @@ export default function CreditsPage() {
                 <div className="flex items-center gap-2">
                   <h4 className="font-bold text-gray-900 text-sm">Maxime FARRE</h4>
                   <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-semibold">
-                    Lead Dev
+                    Développeur Principal
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Conception de l&apos;architecture 3-tiers, intégration Supabase (Auth, RLS, triggers), automatisation de l&apos;autofill ISBN et de la suite de tests unitaires.
+                  Concepteur et développeur de l&apos;application. A réalisé le prototype V1 (Streamlit) et la refonte complète V2 (Next.js & Supabase).
                 </p>
               </div>
             </div>
 
+            {/* Crédits Administration / Bureau */}
+            <div className="border-t border-gray-100 pt-4 space-y-2">
+              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Membres des Bureaux impliqués</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                <div>
+                  <p className="font-bold text-gray-700">Bureau 2025 :</p>
+                  <ul className="list-disc list-inside space-y-0.5 mt-1 text-gray-500">
+                    <li>Nicolas Cosmano (Président)</li>
+                    <li>Elias Rolier (Vice-Président)</li>
+                    <li>Chloé Chaufour (Secrétaire)</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-bold text-gray-700">Bureau 2026 :</p>
+                  <ul className="list-disc list-inside space-y-0.5 mt-1 text-gray-500">
+                    <li>Nathan Moulin (Président)</li>
+                    <li>Mistral Philippe</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
             {/* Note collective */}
-            <div className="text-center py-2">
+            <div className="text-center py-2 border-t border-gray-100">
               <p className="text-xs text-gray-400 italic">
                 Et tous les membres du Club Entrepreneur ayant participé aux phases de tests et contribué à enrichir le catalogue physique !
               </p>
