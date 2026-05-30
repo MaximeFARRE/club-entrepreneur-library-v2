@@ -127,6 +127,17 @@ export default async function LivreDetailsPage({
             ) : (
               <p className="text-sm text-gray-400 italic">Aucun résumé disponible.</p>
             )}
+
+            {livre.disponibilite === "Disponible" && (
+              <div className="pt-4 border-t border-gray-100 flex justify-end">
+                <Link
+                  href={`/emprunter?livreId=${livre.id}`}
+                  className="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition shadow-sm"
+                >
+                  Emprunter ce livre
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
