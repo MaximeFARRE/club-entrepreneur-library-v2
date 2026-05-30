@@ -5,7 +5,7 @@
 - Node.js 20+
 - npm 10+
 - A [Supabase](https://supabase.com/) project (free tier is fine)
-- A [Resend](https://resend.com/) account for email (free tier: 3000 emails/month)
+- A [Brevo](https://www.brevo.com/) account for transactional emails
 - A [Vercel](https://vercel.com/) account for deployment
 
 ---
@@ -34,8 +34,10 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# Email (Resend)
-RESEND_API_KEY=re_xxxxxxxx
+# Email (Brevo)
+BREVO_API_KEY=xkeysib-your_api_key_here
+BREVO_SENDER_EMAIL=bibliotheque@club-entrepreneur.example
+BREVO_SENDER_NAME=Club Entrepreneur
 
 # Cron protection (generate any random string)
 CRON_SECRET=your-random-secret
@@ -135,8 +137,9 @@ Never commit `.env.local`. Only `.env.local.example` (with placeholder values) i
 
 ## Email Testing
 
-Use [Resend's test mode](https://resend.com/docs/send-with-nodejs) locally.
-Emails in dev will appear in the Resend dashboard without actually being delivered.
+Email delivery relies on the Brevo Transactional API. In local development:
+- If `BREVO_API_KEY` and `BREVO_SENDER_EMAIL` are not provided in `.env.local`, the application logs a warning to the console and skips email dispatch without throwing errors.
+- If the keys are provided, emails are delivered immediately. Make sure to test using safe, valid emails.
 
 ---
 
