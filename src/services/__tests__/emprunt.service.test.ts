@@ -134,7 +134,7 @@ describe("emprunt.service - processBorrow", () => {
     vi.mocked(livreRepo.updateAvailability).mockResolvedValueOnce();
     vi.mocked(historiqueRepo.addEmprunt).mockResolvedValueOnce({} as Emprunt);
 
-    await processBorrow(101, "BorrowerName", "borrower@example.com", "Some comments");
+    await processBorrow(101, "BorrowerName", "borrower@example.com", "0612345678", "Some comments");
 
     // Expect book availability to be updated
     expect(livreRepo.updateAvailability).toHaveBeenCalledWith(101, "Indisponible", "BorrowerName");
@@ -147,6 +147,7 @@ describe("emprunt.service - processBorrow", () => {
       id_livre: 101,
       emprunteur: "BorrowerName",
       emprunteur_email: "borrower@example.com",
+      emprunteur_telephone: "0612345678",
       date_emprunt: fixedNow.toISOString(),
       date_retour_prevue: expectedDueDate.toISOString(),
       commentaire: "Some comments",
@@ -157,7 +158,7 @@ describe("emprunt.service - processBorrow", () => {
     vi.mocked(livreRepo.getLivre).mockResolvedValueOnce(null);
 
     await expect(
-      processBorrow(999, "BorrowerName", "borrower@example.com")
+      processBorrow(999, "BorrowerName", "borrower@example.com", "0612345678")
     ).rejects.toThrow("Livre introuvable.");
 
     expect(livreRepo.updateAvailability).not.toHaveBeenCalled();
@@ -169,7 +170,7 @@ describe("emprunt.service - processBorrow", () => {
     vi.mocked(livreRepo.getLivre).mockResolvedValueOnce(unavailableLivre);
 
     await expect(
-      processBorrow(101, "BorrowerName", "borrower@example.com")
+      processBorrow(101, "BorrowerName", "borrower@example.com", "0612345678")
     ).rejects.toThrow("Ce livre n'est pas disponible (statut : Indisponible).");
 
     expect(livreRepo.updateAvailability).not.toHaveBeenCalled();
