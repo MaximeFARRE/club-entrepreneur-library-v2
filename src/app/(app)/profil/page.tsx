@@ -5,6 +5,7 @@ import { updateProfileNameAction } from "./actions";
 import { logoutAction } from "../actions";
 import Link from "next/link";
 import Image from "next/image";
+import DeleteBookButton from "./DeleteBookButton";
 import { redirect } from "next/navigation";
 import type { LoanStatus } from "@/types";
 
@@ -61,6 +62,24 @@ export default async function ProfilPage({
 
   const { error, success } = await searchParams;
 
+  let successMsg = "";
+  if (success === "profile_updated") {
+    successMsg = "Nom mis à jour avec succès.";
+  } else if (success === "book_deleted") {
+    successMsg = "Le livre a été supprimé avec succès.";
+  }
+
+  let errorMsg = "";
+  if (error) {
+    if (error === "missing_name") {
+      errorMsg = "Veuillez entrer un nom valide.";
+    } else if (error === "invalid_id") {
+      errorMsg = "Identifiant du livre invalide.";
+    } else {
+      errorMsg = decodeURIComponent(error);
+    }
+  }
+
   const [ownedBooks, userEmprunts, bookLoans] = await Promise.all([
     getLivresByOwner(user.email!),
     getEmpruntsByBorrower(user.email!),
@@ -96,6 +115,21 @@ export default async function ProfilPage({
           Membre depuis le {formatDate(user.created_at)}
         </div>
       </div>
+
+      {(errorMsg || successMsg) && (
+        <div className="space-y-4">
+          {errorMsg && (
+            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+              {errorMsg}
+            </div>
+          )}
+          {successMsg && (
+            <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+              {successMsg}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -171,6 +205,7 @@ export default async function ProfilPage({
                       <th className="px-4 py-3 text-left">Statut</th>
                       <th className="px-4 py-3 text-left">Détenu par</th>
                       <th className="px-4 py-3 text-left">Retour prévu</th>
+                      <th className="px-4 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -205,8 +240,11 @@ export default async function ProfilPage({
                               <span className="text-gray-400">—</span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-gray-600">
+                           <td className="px-4 py-3 text-gray-600">
                             {isBorrowed && activeLoan ? formatDate(activeLoan.date_retour_prevue) : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <DeleteBookButton id={b.id} isBorrowed={isBorrowed} />
                           </td>
                         </tr>
                       );
@@ -255,13 +293,13 @@ export default async function ProfilPage({
           <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">Modifier mes informations</h2>
             
-            {error && (
+            {error === "missing_name" && (
               <p className="rounded bg-red-50 px-3 py-2 text-xs text-red-700">
-                {error === "missing_name" ? "Veuillez entrer un nom valide." : decodeURIComponent(error)}
+                Veuillez entrer un nom valide.
               </p>
             )}
 
-            {success && (
+            {success === "profile_updated" && (
               <p className="rounded bg-green-50 px-3 py-2 text-xs text-green-700">
                 Nom mis à jour avec succès.
               </p>

@@ -22,6 +22,7 @@ export type Database = {
           date_retour_prevue: string
           emprunteur: string
           emprunteur_email: string
+          emprunteur_telephone: string
           id: number
           id_livre: number
         }
@@ -32,6 +33,7 @@ export type Database = {
           date_retour_prevue: string
           emprunteur: string
           emprunteur_email: string
+          emprunteur_telephone?: string
           id?: never
           id_livre: number
         }
@@ -42,6 +44,7 @@ export type Database = {
           date_retour_prevue?: string
           emprunteur?: string
           emprunteur_email?: string
+          emprunteur_telephone?: string
           id?: never
           id_livre?: number
         }

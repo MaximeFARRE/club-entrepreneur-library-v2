@@ -5,10 +5,11 @@ import Link from "next/link";
 export default async function EmprunterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; livreId?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, livreId } = await searchParams;
   const livres = await getAllLivres("Disponible");
+  const preselectedLivreId = livreId ? Number(livreId) : undefined;
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
@@ -36,6 +37,7 @@ export default async function EmprunterPage({
               <select
                 name="livre_id"
                 required
+                defaultValue={preselectedLivreId}
                 className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Sélectionner un livre…</option>
@@ -50,24 +52,13 @@ export default async function EmprunterPage({
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Votre nom *
+              Numéro de téléphone *
             </label>
             <input
-              name="emprunteur"
-              type="text"
+              name="telephone"
+              type="tel"
               required
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Votre email *
-            </label>
-            <input
-              name="emprunteur_email"
-              type="email"
-              required
+              placeholder="Ex: 06 12 34 56 78"
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
             />
           </div>
